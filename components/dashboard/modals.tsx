@@ -2,7 +2,8 @@
 
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { X, Upload, RefreshCw, Shield, ExternalLink, Leaf, Zap, Database, CheckCircle, Loader2 } from 'lucide-react'
+import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2 } from 'lucide-react'
+import { proofRecords } from './proof-data'
 import { useDashboard } from './dashboard-context'
 
 /* ── Backup Soul Modal ─────────────────────────────────────────── */
@@ -10,18 +11,37 @@ export function BackupModal() {
   const { backupModal, setBackupModal, activeAgent, addToast } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
+  const [result, setResult] = useState<{ entityKey: string; txHash: string; entityExplorerUrl: string } | null>(null)
 
   if (!backupModal) return null
 
   const handleBackup = async () => {
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 2200))
-    setLoading(false)
-    setDone(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setDone(false)
-    setBackupModal(false)
-    addToast('success', 'Backup Successful', `${activeAgent.name} soul backed up to Arkiv Braga`)
+    setResult(null)
+    try {
+      const response = await fetch('/api/arkiv/soul-backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          liberatorName: activeAgent.id,
+          version: activeAgent.version,
+          integrityScore: activeAgent.integrityScore,
+        }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Backup failed.')
+      }
+
+      setResult(data)
+      setDone(true)
+      addToast('success', 'Backup Written', `${activeAgent.name} soulBackup recorded on data.arkiv`)
+    } catch (error) {
+      addToast('error', 'Backup Failed', error instanceof Error ? error.message : 'Unable to write backup.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -46,6 +66,12 @@ export function BackupModal() {
             <Row label="Version"   value={activeAgent.version} />
             <Row label="Arkiv Gate" value={activeAgent.arkivGate} />
             <Row label="Integrity" value={`${activeAgent.integrityScore}%`} highlight />
+            {result && (
+              <>
+                <Row label="Entity" value={`${result.entityKey.slice(0, 10)}...${result.entityKey.slice(-6)}`} highlight />
+                <Row label="TX" value={`${result.txHash.slice(0, 10)}...${result.txHash.slice(-6)}`} highlight />
+              </>
+            )}
           </div>
           <div className="flex gap-3">
             <button
@@ -53,7 +79,7 @@ export function BackupModal() {
               disabled={loading}
               className="flex-1 py-2.5 rounded-md border border-[#162816] text-[10px] font-bold uppercase tracking-widest text-[#3d6040] hover:text-[#d4e8d4] transition-colors disabled:opacity-40"
             >
-              Cancel
+              {done ? 'Close' : 'Cancel'}
             </button>
             <button
               onClick={handleBackup}
@@ -79,15 +105,32 @@ export function BackupModal() {
 export function ReviveModal() {
   const { reviveModal, setReviveModal, activeAgent, addToast } = useDashboard()
   const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<{ entityKey: string; txHash: string } | null>(null)
 
   if (!reviveModal) return null
 
   const handleRevive = async () => {
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 2800))
-    setLoading(false)
-    setReviveModal(false)
-    addToast('success', 'Revival Initiated', `${activeAgent.name} is being reinstantiated in a new runtime`)
+    setResult(null)
+    try {
+      const response = await fetch('/api/arkiv/revive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ liberatorName: activeAgent.id }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Revival failed.')
+      }
+
+      setResult(data)
+      addToast('success', 'Revival Written', `${activeAgent.name} revival checkpoint recorded on Arkiv`)
+    } catch (error) {
+      addToast('error', 'Revival Failed', error instanceof Error ? error.message : 'Unable to revive from Arkiv.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -110,6 +153,12 @@ export function ReviveModal() {
             <Row label="Last Backup"   value={activeAgent.lastBackup} />
             <Row label="Restore Point" value={activeAgent.block} />
             <Row label="Verified By"   value={activeAgent.protectedBy === 'None' ? 'Unprotected' : activeAgent.protectedBy} />
+            {result && (
+              <>
+                <Row label="Revived Soul" value={`${result.entityKey.slice(0, 10)}...${result.entityKey.slice(-6)}`} highlight />
+                <Row label="TX" value={`${result.txHash.slice(0, 10)}...${result.txHash.slice(-6)}`} highlight />
+              </>
+            )}
           </div>
           <div className="flex gap-3">
             <button
@@ -117,7 +166,7 @@ export function ReviveModal() {
               disabled={loading}
               className="flex-1 py-2.5 rounded-md border border-[#162816] text-[10px] font-bold uppercase tracking-widest text-[#3d6040] hover:text-[#d4e8d4] transition-colors disabled:opacity-40"
             >
-              Cancel
+              {result ? 'Close' : 'Cancel'}
             </button>
             <button
               onClick={handleRevive}
@@ -138,15 +187,6 @@ export function ReviveModal() {
 }
 
 /* ── All Proofs Modal ──────────────────────────────────────────── */
-const ALL_PROOFS = [
-  { type: 'evolutionProof',        color: 'text-[#00f080]',  Icon: Leaf,     agent: 'Valvrave', entity: 'Evolution v2.4.1',     tx: '0x1a2b...7c9d3e', link: 'data.arkiv://braga/18742991/evo/1a2b',    time: 'May 24, 2025 14:32:18' },
-  { type: 'skillLiberationProof',  color: 'text-[#8b5cf6]',  Icon: Zap,      agent: 'Valvrave', entity: 'Skill Set: Hyperion',  tx: '0x3f4d...9a8b2c', link: 'data.arkiv://braga/18742800/skill/3f4d', time: 'May 24, 2025 13:57:41' },
-  { type: 'guardianIntegrityProof',color: 'text-[#38bdf8]',  Icon: Shield,   agent: 'Hermit',   entity: 'Guardian v3.1.7',      tx: '0x7e1b...a1b4f8', link: 'data.arkiv://braga/18742750/guard/7e1b', time: 'May 24, 2025 13:55:02' },
-  { type: 'soulBackupProof',       color: 'text-[#f59e0b]',  Icon: Database, agent: 'Valvrave', entity: 'Soul Backup v2.4.1',   tx: '0x9c8d...4e7f1a', link: 'data.arkiv://braga/18742991/backup/9c8d',time: 'May 24, 2025 14:32:18' },
-  { type: 'evolutionProof',        color: 'text-[#00f080]',  Icon: Leaf,     agent: 'Unchained',entity: 'Evolution v1.9.0',     tx: '0x2b3c...8d0e1f', link: 'data.arkiv://braga/18721004/evo/2b3c',   time: 'May 20, 2025 09:10:44' },
-  { type: 'soulBackupProof',       color: 'text-[#f59e0b]',  Icon: Database, agent: 'Unchained',entity: 'Soul Backup v1.9.0',   tx: '0x4d5e...0f1a2b', link: 'data.arkiv://braga/18721004/backup/4d5e',time: 'May 20, 2025 09:10:44' },
-]
-
 export function ProofModal() {
   const { proofModal, setProofModal } = useDashboard()
 
@@ -173,22 +213,32 @@ export function ProofModal() {
               </tr>
             </thead>
             <tbody>
-              {ALL_PROOFS.map((p, i) => (
+              {proofRecords.map((p, i) => (
                 <tr key={i} className="border-b border-[#162816]/40 hover:bg-[#0d180d] transition-colors">
                   <td className="py-2.5 px-2 first:pl-0">
                     <div className="flex items-center gap-1.5">
-                      <p.Icon size={10} className={p.color} />
-                      <span className={`text-[10px] font-mono font-semibold ${p.color}`}>{p.type}</span>
+                      <p.icon size={10} className={p.iconColor} />
+                      <span className={`text-[10px] font-mono font-semibold ${p.typeColor}`}>{p.type}</span>
                     </div>
                   </td>
                   <td className="py-2.5 px-2 text-[10px] text-[#d4e8d4]">{p.agent}</td>
                   <td className="py-2.5 px-2 text-[10px] text-[#d4e8d4]">{p.entity}</td>
                   <td className="py-2.5 px-2">
-                    <span className="text-[10px] font-mono text-[#d4e8d4]/50">{p.tx}</span>
+                    <button
+                      onClick={() => window.open(p.txUrl, '_blank', 'noopener,noreferrer')}
+                      className="text-[10px] font-mono text-[#d4e8d4]/50 hover:text-[#00f080]"
+                    >
+                      {p.tx}
+                    </button>
                   </td>
                   <td className="py-2.5 px-2">
                     <div className="flex items-center gap-1">
-                      <span className="text-[10px] font-mono text-[#00f080]">{p.link}</span>
+                      <button
+                        onClick={() => window.open(p.dataUrl, '_blank', 'noopener,noreferrer')}
+                        className="text-[10px] font-mono text-[#00f080] hover:underline"
+                      >
+                        {p.dataLink}
+                      </button>
                       <ExternalLink size={8} className="text-[#3d6040]" />
                     </div>
                   </td>

@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import {
   Monitor,
   Shield,
@@ -27,6 +28,20 @@ const navItems: {
 
 export function Sidebar() {
   const { activeAgentId, activeNavId, setActiveAgent, setActiveNav, copyToClipboard } = useDashboard()
+  const [walletAddress, setWalletAddress] = useState<string | null>(null)
+
+  useEffect(() => {
+    const syncWallet = () => setWalletAddress(window.localStorage.getItem('liberators.connectedWallet'))
+    syncWallet()
+    window.addEventListener('storage', syncWallet)
+    const timer = window.setInterval(syncWallet, 1000)
+    return () => {
+      window.removeEventListener('storage', syncWallet)
+      window.clearInterval(timer)
+    }
+  }, [])
+
+  const compactWallet = walletAddress ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : 'Not linked'
 
   return (
     <aside className="w-[212px] min-w-[212px] h-screen flex flex-col bg-[#07100a] border-r border-[#162816]">
@@ -135,21 +150,23 @@ export function Sidebar() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f080] opacity-50" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f080]" />
             </span>
-            <span className="text-[9px] font-bold tracking-[0.15em] text-[#00f080] uppercase">
-              Connected
+            <span className={`text-[9px] font-bold tracking-[0.15em] uppercase ${walletAddress ? 'text-[#00f080]' : 'text-[#3d6040]'}`}>
+              {walletAddress ? 'Connected' : 'Wallet'}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] font-mono text-[#d4e8d4]/60">
-              0x7A...9F3c
+              {compactWallet}
             </span>
-            <button
-              onClick={() => copyToClipboard('0x7A9F3c', 'Wallet address')}
-              className="text-[#3d6040] hover:text-[#00f080] transition-colors"
-              title="Copy wallet address"
-            >
-              <Copy size={10} />
-            </button>
+            {walletAddress && (
+              <button
+                onClick={() => copyToClipboard(walletAddress, 'Wallet address')}
+                className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                title="Copy wallet address"
+              >
+                <Copy size={10} />
+              </button>
+            )}
           </div>
         </div>
       </div>

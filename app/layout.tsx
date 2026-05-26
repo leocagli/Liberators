@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Space_Grotesk, Space_Mono } from 'next/font/google'
+import { AuthSessionProvider } from '@/components/auth/session-provider'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-background">
       <body className={`${spaceGrotesk.variable} ${spaceMono.variable} font-sans antialiased`}>
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   )

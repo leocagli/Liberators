@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { Bell, Terminal, FileText, ChevronDown, User, ExternalLink, LogOut, Settings, Copy } from 'lucide-react'
+import { AuthWalletControls } from './auth-wallet-controls'
 import { useDashboard } from './dashboard-context'
 
 const NOTIFICATIONS = [
@@ -61,6 +62,7 @@ export function Header() {
 
       {/* Action bar */}
       <div className="flex items-center gap-1.5">
+        <AuthWalletControls />
 
         {/* Docs */}
         <a
