@@ -9,37 +9,44 @@ import {
   Puzzle,
   Settings,
   Copy,
-  Box,
 } from 'lucide-react'
 import { useDashboard, AGENTS, type AgentId, type NavId } from './dashboard-context'
 
-const navItems: { id: NavId; label: string; icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }> }[] = [
-  { id: 'command', label: 'Command Center', icon: Monitor },
-  { id: 'proofs', label: 'Proofs', icon: Shield },
-  { id: 'arkiv', label: 'Arkiv Network', icon: Network },
-  { id: 'agents', label: 'Agents', icon: Users },
-  { id: 'integrations', label: 'Integrations', icon: Puzzle },
-  { id: 'settings', label: 'Settings', icon: Settings },
+const navItems: {
+  id: NavId
+  label: string
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>
+}[] = [
+  { id: 'command',      label: 'Command Center', icon: Monitor  },
+  { id: 'proofs',       label: 'Proofs',         icon: Shield   },
+  { id: 'arkiv',        label: 'Arkiv Network',  icon: Network  },
+  { id: 'agents',       label: 'Agents',         icon: Users    },
+  { id: 'integrations', label: 'Integrations',   icon: Puzzle   },
+  { id: 'settings',     label: 'Settings',       icon: Settings },
 ]
 
 export function Sidebar() {
   const { activeAgentId, activeNavId, setActiveAgent, setActiveNav, copyToClipboard } = useDashboard()
 
   return (
-    <aside className="w-[210px] min-w-[210px] h-screen flex flex-col bg-[#0a130a] border-r border-[#1a2e1a]">
+    <aside className="w-[212px] min-w-[212px] h-screen flex flex-col bg-[#07100a] border-r border-[#162816]">
+
       {/* Logo */}
-      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[#1a2e1a]">
-        <div className="w-8 h-8 flex items-center justify-center border border-[#00e87a] text-[#00e87a] rounded">
-          <Box size={16} strokeWidth={1.5} />
+      <div className="flex items-center gap-2.5 px-4 py-[14px] border-b border-[#162816]">
+        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/40 rounded bg-[#00f080]/5">
+          {/* Custom hex icon */}
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00f080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
         </div>
-        <span className="text-sm font-bold tracking-widest text-[#dceadc] uppercase">
+        <span className="text-[11px] font-bold tracking-[0.2em] text-[#d4e8d4] uppercase">
           Liberators
         </span>
       </div>
 
-      {/* Agents */}
-      <div className="px-3 pt-4 pb-2">
-        <p className="text-[10px] font-semibold tracking-widest text-[#4e7050] uppercase mb-2 px-1">
+      {/* Agents section */}
+      <div className="px-3 pt-5 pb-1">
+        <p className="text-[9px] font-bold tracking-[0.18em] text-[#3d6040] uppercase mb-2.5 px-1">
           Agents
         </p>
         <div className="flex flex-col gap-1">
@@ -49,13 +56,13 @@ export function Sidebar() {
               <button
                 key={agent.id}
                 onClick={() => setActiveAgent(agent.id as AgentId)}
-                className={`flex items-center gap-2.5 px-2 py-2 rounded text-left transition-colors ${
+                className={`flex items-center gap-2.5 px-2 py-2 rounded-md text-left transition-all duration-150 ${
                   isActive
-                    ? 'bg-[#111f11] border border-[#00e87a]/30'
-                    : 'hover:bg-[#0f1a0f] border border-transparent'
+                    ? 'bg-[#0d1a0d] border border-[#00f080]/20'
+                    : 'hover:bg-[#0d180d] border border-transparent'
                 }`}
               >
-                <div className="w-8 h-8 rounded overflow-hidden flex-shrink-0 border border-[#1a2e1a]">
+                <div className={`w-8 h-8 rounded-md overflow-hidden flex-shrink-0 ${isActive ? 'avatar-active-ring' : 'border border-[#162816]'}`}>
                   <Image
                     src={agent.avatar}
                     alt={agent.name}
@@ -65,12 +72,12 @@ export function Sidebar() {
                   />
                 </div>
                 <div className="min-w-0">
-                  <p className={`text-xs font-semibold truncate ${isActive ? 'text-[#00e87a]' : 'text-[#dceadc]'}`}>
+                  <p className={`text-[11px] font-semibold truncate leading-tight ${isActive ? 'text-[#00f080]' : 'text-[#d4e8d4]'}`}>
                     {agent.name}
                   </p>
                   <div className="flex items-center gap-1 mt-0.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${agent.dotColor}`} />
-                    <span className={`text-[10px] font-mono ${agent.statusColor}`}>
+                    <span className={`text-[9px] font-mono tracking-wider ${agent.statusColor}`}>
                       {agent.status}
                     </span>
                   </div>
@@ -81,9 +88,12 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="px-3 pt-4 pb-2">
-        <p className="text-[10px] font-semibold tracking-widest text-[#4e7050] uppercase mb-2 px-1">
+      {/* Divider */}
+      <div className="mx-3 my-3 border-t border-[#162816]" />
+
+      {/* Navigation section */}
+      <div className="px-3">
+        <p className="text-[9px] font-bold tracking-[0.18em] text-[#3d6040] uppercase mb-2 px-1">
           Navigation
         </p>
         <nav className="flex flex-col gap-0.5">
@@ -93,18 +103,21 @@ export function Sidebar() {
               <button
                 key={item.id}
                 onClick={() => setActiveNav(item.id)}
-                className={`flex items-center gap-2.5 px-2 py-2 rounded text-left text-xs transition-colors ${
+                className={`flex items-center gap-2.5 px-2 py-[7px] rounded-md text-left text-[11px] transition-all duration-150 ${
                   isActive
-                    ? 'text-[#00e87a] bg-[#0f1a0f]'
-                    : 'text-[#dceadc]/70 hover:text-[#dceadc] hover:bg-[#0f1a0f]'
+                    ? 'text-[#00f080] bg-[#0d1a0d]'
+                    : 'text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:bg-[#0d180d]'
                 }`}
               >
                 <item.icon
-                  size={14}
-                  strokeWidth={1.5}
-                  className={isActive ? 'text-[#00e87a]' : 'text-[#4e7050]'}
+                  size={13}
+                  strokeWidth={isActive ? 2 : 1.5}
+                  className={isActive ? 'text-[#00f080]' : 'text-[#3d6040]'}
                 />
                 {item.label}
+                {isActive && (
+                  <span className="ml-auto w-1 h-4 rounded-full bg-[#00f080]" />
+                )}
               </button>
             )
           })}
@@ -116,20 +129,23 @@ export function Sidebar() {
 
       {/* Connected wallet */}
       <div className="px-3 pb-4">
-        <div className="border border-[#1a2e1a] rounded p-2.5 bg-[#0d160d]">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00e87a]" />
-            <span className="text-[10px] font-semibold tracking-widest text-[#00e87a] uppercase">
+        <div className="border border-[#162816] rounded-md p-2.5 bg-[#0b1510]">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f080] opacity-50" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f080]" />
+            </span>
+            <span className="text-[9px] font-bold tracking-[0.15em] text-[#00f080] uppercase">
               Connected
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-mono text-[#dceadc]/70">
+            <span className="text-[10px] font-mono text-[#d4e8d4]/60">
               0x7A...9F3c
             </span>
             <button
-              onClick={() => copyToClipboard('0x7A...9F3c', 'Wallet address')}
-              className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
+              onClick={() => copyToClipboard('0x7A9F3c', 'Wallet address')}
+              className="text-[#3d6040] hover:text-[#00f080] transition-colors"
               title="Copy wallet address"
             >
               <Copy size={10} />

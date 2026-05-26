@@ -4,175 +4,195 @@ import Image from 'next/image'
 import { Shield, Database, Globe, Clock, Copy, ExternalLink, RefreshCw, Upload, Info } from 'lucide-react'
 import { useDashboard } from './dashboard-context'
 
-const TOTAL_SEGMENTS = 30
+const TOTAL_SEGMENTS = 28
 
 export function AgentCard() {
   const { activeAgent, setBackupModal, setReviveModal, copyToClipboard, addToast } = useDashboard()
   const filledSegments = Math.round((activeAgent.integrityScore / 100) * TOTAL_SEGMENTS)
 
+  const scoreColor =
+    activeAgent.integrityScore >= 90
+      ? 'text-[#00f080]'
+      : activeAgent.integrityScore >= 70
+      ? 'text-[#f59e0b]'
+      : 'text-[#ef4444]'
+
+  const barColor =
+    activeAgent.integrityScore >= 90
+      ? 'bg-[#00f080]'
+      : activeAgent.integrityScore >= 70
+      ? 'bg-[#f59e0b]'
+      : 'bg-[#ef4444]'
+
   return (
-    <div className="border border-[#1a2e1a] rounded-lg bg-[#0d160d] p-5">
-      {/* Top row: avatar + name + meta */}
-      <div className="flex gap-5 mb-5">
-        {/* Avatar */}
-        <div className="w-[140px] h-[140px] flex-shrink-0 rounded-lg overflow-hidden border border-[#1a2e1a] bg-[#0a130a]">
-          <Image
-            src={activeAgent.avatar}
-            alt={`${activeAgent.name} agent avatar`}
-            width={140}
-            height={140}
-            className="w-full h-full object-cover transition-all duration-300"
-          />
-        </div>
+    <div className="relative border border-[#162816] rounded-lg bg-[#0b1510] overflow-hidden">
+      {/* Subtle top accent line */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-[#00f080]/30 to-transparent" />
 
-        {/* Name + badges + integrity */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-3">
-            <h2 className="text-2xl font-bold text-[#dceadc] tracking-wide uppercase">
-              {activeAgent.name}
-            </h2>
-            <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase border ${
-              activeAgent.status === 'ACTIVE'
-                ? 'bg-[#00e87a]/10 text-[#00e87a] border-[#00e87a]/30'
-                : activeAgent.status === 'GUARDIAN'
-                ? 'bg-[#3b9eff]/10 text-[#3b9eff] border-[#3b9eff]/30'
-                : 'bg-[#4e7050]/10 text-[#4e7050] border-[#4e7050]/30'
-            }`}>
-              {activeAgent.status}
-            </span>
-            <span className="px-2 py-0.5 rounded text-[10px] font-mono text-[#4e7050] border border-[#1a2e1a] bg-[#0a130a]">
-              {activeAgent.version}
-            </span>
-          </div>
+      <div className="p-5">
+        {/* Top row */}
+        <div className="flex gap-5 mb-5">
 
-          {/* Integrity score */}
-          <div className="mb-2">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] font-semibold tracking-widest text-[#4e7050] uppercase">
-                Integrity Score
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            <div className="w-[136px] h-[136px] rounded-lg overflow-hidden border border-[#162816] bg-[#060b06] relative">
+              <Image
+                src={activeAgent.avatar}
+                alt={`${activeAgent.name} avatar`}
+                width={136}
+                height={136}
+                className="w-full h-full object-cover transition-all duration-500"
+                key={activeAgent.id}
+              />
+              {/* Corner glow */}
+              <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-[#00f080]/10" />
+            </div>
+            {/* Active dot */}
+            {activeAgent.status === 'ACTIVE' && (
+              <span className="absolute bottom-2 right-2 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f080] opacity-60" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#00f080]" />
               </span>
-              <button
-                onClick={() => addToast('info', 'Integrity Score', 'Measures the agent soul completeness and backup health. 90% is the minimum threshold.')}
-                className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
-                title="About integrity score"
-              >
-                <Info size={10} />
-              </button>
-            </div>
-            <div className={`text-[2.2rem] font-bold leading-none mb-2 neon-glow-text ${
-              activeAgent.integrityScore >= 90 ? 'text-[#00e87a]' : activeAgent.integrityScore >= 70 ? 'text-yellow-400' : 'text-red-400'
-            }`}>
-              {activeAgent.integrityScore}%
-            </div>
-            {/* Segmented bar */}
-            <div className="flex gap-[3px] mb-1">
-              {Array.from({ length: TOTAL_SEGMENTS }).map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 w-3.5 rounded-[1px] transition-colors ${
-                    i < filledSegments
-                      ? activeAgent.integrityScore >= 90
-                        ? 'bg-[#00e87a]'
-                        : activeAgent.integrityScore >= 70
-                        ? 'bg-yellow-400'
-                        : 'bg-red-400'
-                      : 'bg-[#111f11] border border-[#1a2e1a]'
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] text-[#4e7050]">Threshold: 90%</span>
-              <Info size={9} className="text-[#4e7050]" />
-            </div>
-          </div>
-        </div>
-
-        {/* Right meta column */}
-        <div className="flex flex-col gap-4 min-w-[220px]">
-          {/* Protected by */}
-          <div className="flex items-start gap-2.5">
-            <Shield size={16} className="text-[#4e7050] mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase mb-0.5">
-                Protected By
-              </p>
-              <p className={`text-xs font-bold ${activeAgent.protectedBy === 'None' ? 'text-[#4e7050]' : 'text-[#00e87a]'}`}>
-                {activeAgent.protectedBy}
-              </p>
-            </div>
+            )}
           </div>
 
-          {/* Last backup */}
-          <div className="flex items-start gap-2.5">
-            <Clock size={16} className="text-[#4e7050] mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase mb-0.5">
-                Last Decentralized Backup
-              </p>
-              <p className="text-xs font-semibold text-[#dceadc]">{activeAgent.lastBackup}</p>
-              <p className="text-[10px] text-[#4e7050] font-mono mt-0.5">{activeAgent.block}</p>
+          {/* Name + badges + integrity */}
+          <div className="flex-1 min-w-0">
+            {/* Name row */}
+            <div className="flex items-center gap-2.5 mb-4 flex-wrap">
+              <h2 className="text-[1.4rem] font-bold text-[#d4e8d4] tracking-wider uppercase leading-none">
+                {activeAgent.name}
+              </h2>
+              <span className={`px-2 py-0.5 rounded-sm text-[9px] font-bold tracking-[0.12em] uppercase border ${
+                activeAgent.status === 'ACTIVE'
+                  ? 'bg-[#00f080]/10 text-[#00f080] border-[#00f080]/25'
+                  : activeAgent.status === 'GUARDIAN'
+                  ? 'bg-[#38bdf8]/10 text-[#38bdf8] border-[#38bdf8]/25'
+                  : 'bg-[#3d6040]/10 text-[#3d6040] border-[#3d6040]/25'
+              }`}>
+                {activeAgent.status}
+              </span>
+              <span className="px-2 py-0.5 rounded-sm text-[9px] font-mono text-[#3d6040] border border-[#162816] bg-[#060b06]">
+                {activeAgent.version}
+              </span>
             </div>
-          </div>
 
-          {/* Soul ID */}
-          <div className="flex items-start gap-2.5">
-            <Database size={16} className="text-[#4e7050] mt-0.5 flex-shrink-0" />
+            {/* Integrity score */}
             <div>
-              <p className="text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase mb-0.5">
-                Soul ID
-              </p>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-mono text-[#dceadc]">{activeAgent.soulId}</span>
+              <div className="flex items-center gap-1.5 mb-1">
+                <span className="text-[9px] font-bold tracking-[0.15em] text-[#3d6040] uppercase">
+                  Integrity Score
+                </span>
                 <button
-                  onClick={() => copyToClipboard(activeAgent.soulId, 'Soul ID')}
-                  className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
-                  title="Copy Soul ID"
+                  onClick={() => addToast('info', 'Integrity Score', 'Measures soul completeness and backup health. 90% is the minimum threshold for full protection.')}
+                  className="text-[#3d6040] hover:text-[#00f080] transition-colors"
                 >
-                  <Copy size={10} />
+                  <Info size={9} />
                 </button>
+              </div>
+
+              <div className={`text-[2.6rem] font-bold leading-none mb-2.5 tracking-tight ${scoreColor} neon-glow-text`}>
+                {activeAgent.integrityScore}%
+              </div>
+
+              {/* Segmented bar */}
+              <div className="flex gap-[2.5px] mb-1.5">
+                {Array.from({ length: TOTAL_SEGMENTS }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-[7px] w-[13px] rounded-[1.5px] transition-colors ${
+                      i < filledSegments ? barColor : 'bg-[#101d10] border border-[#162816]'
+                    }`}
+                  />
+                ))}
+              </div>
+
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] text-[#3d6040]">Threshold: 90%</span>
+                <Info size={8} className="text-[#3d6040]" />
               </div>
             </div>
           </div>
 
-          {/* Arkiv gate */}
-          <div className="flex items-start gap-2.5">
-            <Globe size={16} className="text-[#4e7050] mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase mb-0.5">
-                Arkiv Gate
-              </p>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-[#dceadc]">{activeAgent.arkivGate}</span>
-                <button
-                  onClick={() => addToast('info', 'Arkiv Gate', `Opening ${activeAgent.arkivGate}`)}
-                  className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
-                  title="Open Arkiv Gate"
-                >
-                  <ExternalLink size={10} />
-                </button>
+          {/* Right meta column */}
+          <div className="flex flex-col gap-3.5 min-w-[220px] border-l border-[#162816] pl-5">
+
+            {/* Protected by */}
+            <div className="flex items-start gap-2">
+              <Shield size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Protected By</p>
+                <p className={`text-[11px] font-bold ${activeAgent.protectedBy === 'None' ? 'text-[#3d6040]' : 'text-[#00f080]'}`}>
+                  {activeAgent.protectedBy}
+                </p>
+              </div>
+            </div>
+
+            {/* Last backup */}
+            <div className="flex items-start gap-2">
+              <Clock size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Last Decentralized Backup</p>
+                <p className="text-[11px] font-semibold text-[#d4e8d4]">{activeAgent.lastBackup}</p>
+                <p className="text-[9px] text-[#3d6040] font-mono mt-0.5">{activeAgent.block}</p>
+              </div>
+            </div>
+
+            {/* Soul ID */}
+            <div className="flex items-start gap-2">
+              <Database size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Soul ID</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-mono text-[#d4e8d4]">{activeAgent.soulId}</span>
+                  <button
+                    onClick={() => copyToClipboard(activeAgent.soulId, 'Soul ID')}
+                    className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                    title="Copy Soul ID"
+                  >
+                    <Copy size={9} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Arkiv gate */}
+            <div className="flex items-start gap-2">
+              <Globe size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Arkiv Gate</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-[#d4e8d4]">{activeAgent.arkivGate}</span>
+                  <button
+                    onClick={() => addToast('info', 'Arkiv Gate', `Opening ${activeAgent.arkivGate}`)}
+                    className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                    title="Open Arkiv Gate"
+                  >
+                    <ExternalLink size={9} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Action buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={() => setBackupModal(true)}
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded border border-[#00e87a] text-sm font-bold tracking-widest uppercase text-[#00e87a] bg-[#00e87a]/5 hover:bg-[#00e87a]/10 active:scale-[0.98] transition-all"
-        >
-          <Upload size={14} />
-          Backup Soul
-        </button>
-        <button
-          onClick={() => setReviveModal(true)}
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded border border-[#1a2e1a] text-sm font-bold tracking-widest uppercase text-[#dceadc]/70 bg-[#0a130a] hover:bg-[#0f1a0f] hover:border-[#2a3e2a] active:scale-[0.98] transition-all"
-        >
-          <RefreshCw size={14} />
-          Revive From Arkiv
-        </button>
+        {/* Action buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setBackupModal(true)}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#00f080]/40 text-[11px] font-bold tracking-[0.12em] uppercase text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 hover:border-[#00f080]/60 hover:shadow-[0_0_12px_rgba(0,240,128,0.12)] active:scale-[0.98] transition-all duration-150"
+          >
+            <Upload size={13} />
+            Backup Soul
+          </button>
+          <button
+            onClick={() => setReviveModal(true)}
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#162816] text-[11px] font-bold tracking-[0.12em] uppercase text-[#d4e8d4]/60 bg-[#060b06] hover:bg-[#0d180d] hover:border-[#1e3c1e] hover:text-[#d4e8d4] active:scale-[0.98] transition-all duration-150"
+          >
+            <RefreshCw size={13} />
+            Revive From Arkiv
+          </button>
+        </div>
       </div>
     </div>
   )
