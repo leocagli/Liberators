@@ -1,122 +1,123 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { Bell, Terminal, FileText, Box, ChevronDown, User, ExternalLink, LogOut, Settings, Copy } from 'lucide-react'
+import { Bell, Terminal, FileText, ChevronDown, User, ExternalLink, LogOut, Settings, Copy } from 'lucide-react'
 import { useDashboard } from './dashboard-context'
 
 const NOTIFICATIONS = [
-  { id: 1, title: 'Soul Backup Complete', desc: 'Valvrave backed up at block 18,742,991', time: '2m ago', dot: 'bg-[#00e87a]' },
-  { id: 2, title: 'Guardian Integrity Check', desc: 'Hermit verified all agents successfully', time: '8m ago', dot: 'bg-[#3b9eff]' },
-  { id: 3, title: 'New Proof Recorded', desc: 'skillLiberationProof added to chain', time: '34m ago', dot: 'bg-[#7c5cff]' },
+  { id: 1, title: 'Soul Backup Complete', desc: 'Valvrave backed up at block 18,742,991', time: '2m ago', dot: 'bg-[#00f080]' },
+  { id: 2, title: 'Guardian Integrity Check', desc: 'Hermit verified all agents successfully', time: '8m ago', dot: 'bg-[#38bdf8]' },
+  { id: 3, title: 'New Proof Recorded', desc: 'skillLiberationProof added to chain', time: '34m ago', dot: 'bg-[#8b5cf6]' },
 ]
 
 export function Header() {
   const { notifOpen, setNotifOpen, profileOpen, setProfileOpen, addToast, copyToClipboard } = useDashboard()
 
-  const notifRef = useRef<HTMLDivElement>(null)
+  const notifRef   = useRef<HTMLDivElement>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
-  /* Close dropdowns on outside click */
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
-      if (notifOpen && notifRef.current && !notifRef.current.contains(e.target as Node)) {
-        setNotifOpen(false)
-      }
-      if (profileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) {
-        setProfileOpen(false)
-      }
+      if (notifOpen   && notifRef.current   && !notifRef.current.contains(e.target as Node))   setNotifOpen(false)
+      if (profileOpen && profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false)
     }
     document.addEventListener('mousedown', onMouseDown)
     return () => document.removeEventListener('mousedown', onMouseDown)
   }, [notifOpen, profileOpen, setNotifOpen, setProfileOpen])
 
   return (
-    <header className="h-14 flex items-center border-b border-[#1a2e1a] bg-[#0a130a] px-4 gap-4 flex-shrink-0 relative z-30">
-      {/* Title */}
+    <header className="h-[52px] flex items-center border-b border-[#162816] bg-[#07100a] px-5 gap-4 flex-shrink-0 relative z-30">
+
+      {/* Title block */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-8 h-8 flex items-center justify-center border border-[#00e87a]/40 text-[#00e87a] rounded flex-shrink-0">
-          <Box size={16} strokeWidth={1.5} />
+        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/30 rounded bg-[#00f080]/5 flex-shrink-0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00f080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          </svg>
         </div>
         <div className="min-w-0">
-          <h1 className="text-sm font-bold tracking-widest text-[#dceadc] uppercase leading-tight">
+          <h1 className="text-[11px] font-bold tracking-[0.15em] text-[#d4e8d4] uppercase leading-tight">
             Soul Backup &amp; Revival
           </h1>
-          <p className="text-[10px] text-[#4e7050] leading-tight">
+          <p className="text-[9px] text-[#3d6040] leading-tight tracking-wide">
             Soul Recovery Command Center
           </p>
         </div>
       </div>
 
-      {/* User status */}
-      <div className="flex items-center gap-2 border border-[#1a2e1a] rounded px-3 py-1.5 bg-[#0d160d]">
-        <div className="w-6 h-6 rounded-full border border-[#00e87a]/50 flex items-center justify-center bg-[#0f1a0f]">
-          <User size={12} className="text-[#00e87a]" />
+      {/* Network status badge */}
+      <div className="flex items-center gap-2 border border-[#162816] rounded-md px-3 py-1.5 bg-[#0b1510]">
+        <div className="w-5 h-5 rounded-full border border-[#00f080]/30 flex items-center justify-center bg-[#00f080]/5">
+          <User size={11} className="text-[#00f080]" />
         </div>
         <div>
-          <p className="text-xs font-bold text-[#dceadc] leading-tight">Arkiv Braga</p>
+          <p className="text-[11px] font-bold text-[#d4e8d4] leading-tight">Arkiv Braga</p>
           <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00e87a]" />
-            <span className="text-[10px] text-[#00e87a]">Network Healthy</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00f080]" />
+            <span className="text-[9px] text-[#00f080] leading-none">Network Healthy</span>
           </div>
         </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
+      {/* Action bar */}
+      <div className="flex items-center gap-1.5">
+
         {/* Docs */}
         <a
           href="https://docs.arkiv.network"
           target="_blank"
           rel="noreferrer"
           onClick={() => addToast('info', 'Opening Docs', 'Redirecting to Arkiv Network documentation')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[#1a2e1a] text-xs text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a] transition-colors bg-[#0d160d]"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
         >
-          <FileText size={12} />
+          <FileText size={11} />
           Docs
-          <ExternalLink size={9} className="opacity-50" />
+          <ExternalLink size={9} className="opacity-40" />
         </a>
 
         {/* CLI */}
         <button
-          onClick={() => addToast('info', 'CLI Access', 'Install: npm install -g @arkiv/cli  then run: arkiv connect')}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded border border-[#1a2e1a] text-xs text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a] transition-colors bg-[#0d160d]"
+          onClick={() => addToast('info', 'CLI Access', 'npm install -g @arkiv/cli  →  arkiv connect')}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
         >
-          <Terminal size={12} />
+          <Terminal size={11} />
           CLI
         </button>
 
-        {/* Notifications bell */}
+        {/* Bell */}
         <div ref={notifRef} className="relative">
           <button
             onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false) }}
-            className={`w-8 h-8 rounded border flex items-center justify-center transition-colors bg-[#0d160d] relative ${
-              notifOpen ? 'border-[#00e87a]/50 text-[#00e87a]' : 'border-[#1a2e1a] text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a]'
+            className={`w-8 h-8 rounded border flex items-center justify-center transition-all relative ${
+              notifOpen
+                ? 'border-[#00f080]/40 text-[#00f080] bg-[#00f080]/5'
+                : 'border-[#162816] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510]'
             }`}
           >
-            <Bell size={14} />
-            <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#00e87a]" />
+            <Bell size={13} />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#00f080] shadow-[0_0_4px_#00f080]" />
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-10 w-72 border border-[#1a2e1a] rounded-lg bg-[#0d160d] shadow-xl z-50">
-              <div className="px-4 py-2.5 border-b border-[#1a2e1a] flex items-center justify-between">
-                <span className="text-[10px] font-semibold tracking-widest text-[#4e7050] uppercase">Notifications</span>
-                <span className="text-[10px] text-[#00e87a] font-mono">3 new</span>
+            <div className="absolute right-0 top-10 w-72 border border-[#162816] rounded-lg bg-[#0b1510] shadow-2xl z-50">
+              <div className="px-4 py-2.5 border-b border-[#162816] flex items-center justify-between">
+                <span className="text-[9px] font-bold tracking-[0.15em] text-[#3d6040] uppercase">Notifications</span>
+                <span className="text-[9px] text-[#00f080] font-mono">3 new</span>
               </div>
               {NOTIFICATIONS.map((n) => (
-                <div key={n.id} className="flex items-start gap-2.5 px-4 py-3 border-b border-[#1a2e1a]/50 hover:bg-[#0f1a0f] transition-colors cursor-pointer">
-                  <span className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${n.dot}`} />
+                <div key={n.id} className="flex items-start gap-2.5 px-4 py-3 border-b border-[#162816]/60 hover:bg-[#0d180d] transition-colors cursor-pointer">
+                  <span className={`w-1.5 h-1.5 rounded-full mt-[5px] flex-shrink-0 ${n.dot}`} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold text-[#dceadc]">{n.title}</p>
-                    <p className="text-[10px] text-[#4e7050] mt-0.5 leading-relaxed">{n.desc}</p>
+                    <p className="text-[11px] font-semibold text-[#d4e8d4]">{n.title}</p>
+                    <p className="text-[10px] text-[#3d6040] mt-0.5 leading-relaxed">{n.desc}</p>
                   </div>
-                  <span className="text-[9px] text-[#4e7050] whitespace-nowrap flex-shrink-0">{n.time}</span>
+                  <span className="text-[9px] text-[#3d6040] whitespace-nowrap flex-shrink-0">{n.time}</span>
                 </div>
               ))}
-              <div className="px-4 py-2">
+              <div className="px-4 py-2.5">
                 <button
                   onClick={() => { setNotifOpen(false); addToast('info', 'Notifications', 'All notifications marked as read') }}
-                  className="text-[10px] text-[#4e7050] hover:text-[#00e87a] transition-colors"
+                  className="text-[10px] text-[#3d6040] hover:text-[#00f080] transition-colors"
                 >
                   Mark all as read
                 </button>
@@ -129,43 +130,47 @@ export function Header() {
         <div ref={profileRef} className="relative">
           <button
             onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false) }}
-            className={`flex items-center gap-1.5 px-2 py-1.5 rounded border transition-colors bg-[#0d160d] ${
-              profileOpen ? 'border-[#00e87a]/50 text-[#00e87a]' : 'border-[#1a2e1a] text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a]'
+            className={`flex items-center gap-1.5 px-2 py-1.5 rounded border transition-all ${
+              profileOpen
+                ? 'border-[#00f080]/40 text-[#00f080] bg-[#00f080]/5'
+                : 'border-[#162816] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510]'
             }`}
           >
-            <div className="w-5 h-5 rounded border border-[#00e87a]/40 flex items-center justify-center">
-              <Box size={12} className="text-[#00e87a]" />
+            <div className="w-5 h-5 rounded border border-[#00f080]/30 flex items-center justify-center bg-[#00f080]/5">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+              </svg>
             </div>
-            <ChevronDown size={12} className={`transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={11} className={`transition-transform ${profileOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {profileOpen && (
-            <div className="absolute right-0 top-10 w-52 border border-[#1a2e1a] rounded-lg bg-[#0d160d] shadow-xl z-50">
-              <div className="px-4 py-3 border-b border-[#1a2e1a]">
-                <p className="text-xs font-bold text-[#dceadc]">Arkiv Braga</p>
-                <p className="text-[10px] text-[#4e7050] mt-0.5 font-mono">Network Healthy</p>
+            <div className="absolute right-0 top-10 w-52 border border-[#162816] rounded-lg bg-[#0b1510] shadow-2xl z-50">
+              <div className="px-4 py-3 border-b border-[#162816]">
+                <p className="text-[11px] font-bold text-[#d4e8d4]">Arkiv Braga</p>
+                <p className="text-[9px] text-[#3d6040] mt-0.5 font-mono">Network Healthy</p>
               </div>
               <div className="p-1.5">
                 <button
-                  onClick={() => { copyToClipboard('0x7A...9F3c', 'Wallet address'); setProfileOpen(false) }}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-xs text-[#dceadc]/70 hover:text-[#dceadc] hover:bg-[#0f1a0f] transition-colors"
+                  onClick={() => { copyToClipboard('0x7A9F3c', 'Wallet address'); setProfileOpen(false) }}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-[11px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:bg-[#0d180d] transition-colors"
                 >
-                  <Copy size={12} className="text-[#4e7050]" />
+                  <Copy size={11} className="text-[#3d6040]" />
                   Copy Address
                 </button>
                 <button
                   onClick={() => { setProfileOpen(false); addToast('info', 'Settings', 'Settings panel coming soon') }}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-xs text-[#dceadc]/70 hover:text-[#dceadc] hover:bg-[#0f1a0f] transition-colors"
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-[11px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:bg-[#0d180d] transition-colors"
                 >
-                  <Settings size={12} className="text-[#4e7050]" />
+                  <Settings size={11} className="text-[#3d6040]" />
                   Account Settings
                 </button>
-                <div className="border-t border-[#1a2e1a] my-1" />
+                <div className="border-t border-[#162816] my-1" />
                 <button
                   onClick={() => { setProfileOpen(false); addToast('info', 'Disconnected', 'Wallet disconnected from Arkiv Network') }}
-                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-xs text-red-400/80 hover:text-red-400 hover:bg-[#0f1a0f] transition-colors"
+                  className="flex items-center gap-2.5 w-full px-3 py-2 rounded text-[11px] text-red-400/70 hover:text-red-400 hover:bg-[#0d180d] transition-colors"
                 >
-                  <LogOut size={12} />
+                  <LogOut size={11} />
                   Disconnect
                 </button>
               </div>
