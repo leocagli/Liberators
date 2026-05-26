@@ -2,8 +2,11 @@
 
 import Image from 'next/image'
 import { CheckCircle, Copy, ArrowRight, Shield, User, Box, ExternalLink, Layers } from 'lucide-react'
+import { useDashboard } from './dashboard-context'
 
 export function GuardianPanel() {
+  const { copyToClipboard, setProofModal } = useDashboard()
+
   return (
     <aside className="w-[290px] min-w-[290px] h-full flex flex-col border-l border-[#1a2e1a] bg-[#0a130a] overflow-y-auto">
       {/* Guardian header */}
@@ -44,7 +47,11 @@ export function GuardianPanel() {
                 <span className="text-[10px] font-mono text-[#dceadc]/80 text-right">
                   0x7e1b...c2d9f8e3a1b4
                 </span>
-                <button className="text-[#4e7050] hover:text-[#00e87a] transition-colors flex-shrink-0">
+                <button
+                  onClick={() => copyToClipboard('0x7e1bc2d9f8e3a1b4', 'Proof hash')}
+                  className="text-[#4e7050] hover:text-[#00e87a] transition-colors flex-shrink-0"
+                  title="Copy proof hash"
+                >
                   <Copy size={9} />
                 </button>
               </div>
@@ -122,7 +129,10 @@ export function GuardianPanel() {
         </section>
 
         {/* View Guardian Proofs button */}
-        <button className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded border border-[#1a2e1a] text-xs font-semibold tracking-widest uppercase text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a] bg-[#0d160d] hover:bg-[#111f11] transition-colors">
+        <button
+          onClick={() => setProofModal(true)}
+          className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded border border-[#1a2e1a] text-xs font-semibold tracking-widest uppercase text-[#dceadc]/70 hover:text-[#dceadc] hover:border-[#2a3e2a] bg-[#0d160d] hover:bg-[#111f11] active:scale-[0.98] transition-all"
+        >
           View Guardian Proofs
           <ExternalLink size={11} />
         </button>

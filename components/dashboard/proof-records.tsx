@@ -1,6 +1,8 @@
 'use client'
 
-import { Filter, Calendar, ExternalLink, Copy, ChevronDown, Leaf, Zap, Shield, Database } from 'lucide-react'
+import { useRef, useEffect, useState } from 'react'
+import { Filter, Calendar, ExternalLink, ChevronDown, Leaf, Zap, Shield, Database } from 'lucide-react'
+import { useDashboard } from './dashboard-context'
 
 const proofRecords = [
   {
@@ -49,7 +51,31 @@ const proofRecords = [
   },
 ]
 
+const FILTER_TYPES = ['All', 'evolutionProof', 'skillLiberationProof', 'guardianIntegrityProof', 'soulBackupProof']
+const TIME_RANGES = ['7D', '30D', '90D', 'ALL'] as const
+
 export function ProofRecords() {
+  const { setProofModal, timeRange, setTimeRange } = useDashboard()
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [timeOpen, setTimeOpen] = useState(false)
+  const [activeFilter, setActiveFilter] = useState('All')
+
+  const filterRef = useRef<HTMLDivElement>(null)
+  const timeRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function onMouseDown(e: MouseEvent) {
+      if (filterOpen && filterRef.current && !filterRef.current.contains(e.target as Node)) setFilterOpen(false)
+      if (timeOpen && timeRef.current && !timeRef.current.contains(e.target as Node)) setTimeOpen(false)
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [filterOpen, timeOpen])
+
+  const filteredRecords = activeFilter === 'All'
+    ? proofRecords
+    : proofRecords.filter((r) => r.type === activeFilter)
+
   return (
     <div className="border border-[#1a2e1a] rounded-lg bg-[#0d160d] overflow-hidden">
       {/* Header */}
@@ -58,15 +84,67 @@ export function ProofRecords() {
           Proof Records
         </h3>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#1a2e1a] text-[10px] text-[#4e7050] hover:text-[#dceadc] transition-colors bg-[#0a130a]">
-            <Filter size={10} />
-            Filter
-          </button>
-          <button className="flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#1a2e1a] text-[10px] text-[#4e7050] hover:text-[#dceadc] transition-colors bg-[#0a130a]">
-            <Calendar size={10} />
-            7D
-            <ChevronDown size={9} />
-          </button>
+          {/* Filter dropdown */}
+          <div ref={filterRef} className="relative">
+            <button
+              onClick={() => { setFilterOpen(!filterOpen); setTimeOpen(false) }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[10px] transition-colors bg-[#0a130a] ${
+                filterOpen || activeFilter !== 'All'
+                  ? 'border-[#00e87a]/40 text-[#00e87a]'
+                  : 'border-[#1a2e1a] text-[#4e7050] hover:text-[#dceadc]'
+              }`}
+            >
+              <Filter size={10} />
+              {activeFilter === 'All' ? 'Filter' : activeFilter.replace('Proof', '')}
+              <ChevronDown size={9} className={`transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {filterOpen && (
+              <div className="absolute right-0 top-7 w-52 border border-[#1a2e1a] rounded-lg bg-[#0d160d] shadow-xl z-20">
+                {FILTER_TYPES.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => { setActiveFilter(f); setFilterOpen(false) }}
+                    className={`flex items-center w-full px-3 py-2 text-[11px] transition-colors hover:bg-[#0f1a0f] ${
+                      activeFilter === f ? 'text-[#00e87a] font-semibold' : 'text-[#dceadc]/70'
+                    }`}
+                  >
+                    {activeFilter === f && <span className="mr-1.5">&#10003;</span>}
+                    {f}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Time range dropdown */}
+          <div ref={timeRef} className="relative">
+            <button
+              onClick={() => { setTimeOpen(!timeOpen); setFilterOpen(false) }}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[10px] transition-colors bg-[#0a130a] ${
+                timeOpen ? 'border-[#00e87a]/40 text-[#00e87a]' : 'border-[#1a2e1a] text-[#4e7050] hover:text-[#dceadc]'
+              }`}
+            >
+              <Calendar size={10} />
+              {timeRange}
+              <ChevronDown size={9} className={`transition-transform ${timeOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {timeOpen && (
+              <div className="absolute right-0 top-7 w-24 border border-[#1a2e1a] rounded-lg bg-[#0d160d] shadow-xl z-20">
+                {TIME_RANGES.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setTimeRange(t); setTimeOpen(false) }}
+                    className={`flex items-center w-full px-3 py-2 text-[11px] transition-colors hover:bg-[#0f1a0f] ${
+                      timeRange === t ? 'text-[#00e87a] font-semibold' : 'text-[#dceadc]/70'
+                    }`}
+                  >
+                    {timeRange === t && <span className="mr-1">&#10003;</span>}
+                    {t}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -75,66 +153,81 @@ export function ProofRecords() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-[#1a2e1a]">
-              {['Proof Type', 'Agent', 'Entity', 'TX', 'Data.Arkiv Link', 'Time (UTC)'].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className="px-5 py-2.5 text-left text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase whitespace-nowrap"
-                  >
-                    {col}
-                    {col === 'Time (UTC)' && (
-                      <span className="ml-1 text-[#4e7050]">↑</span>
-                    )}
-                  </th>
-                )
-              )}
+              {['Proof Type', 'Agent', 'Entity', 'TX', 'Data.Arkiv Link', 'Time (UTC)'].map((col) => (
+                <th
+                  key={col}
+                  className="px-5 py-2.5 text-left text-[9px] font-semibold tracking-widest text-[#4e7050] uppercase whitespace-nowrap"
+                >
+                  {col}
+                  {col === 'Time (UTC)' && <span className="ml-1 text-[#4e7050]">&#8593;</span>}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {proofRecords.map((record, i) => (
-              <tr
-                key={i}
-                className="border-b border-[#1a2e1a] hover:bg-[#0f1a0f] transition-colors"
-              >
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-1.5">
-                    <record.icon size={12} className={record.iconColor} />
-                    <span className={`text-xs font-mono font-semibold ${record.typeColor}`}>
-                      {record.type}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-5 py-3">
-                  <span className="text-xs text-[#dceadc]">{record.agent}</span>
-                </td>
-                <td className="px-5 py-3">
-                  <span className="text-xs text-[#dceadc]">{record.entity}</span>
-                </td>
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono text-[#dceadc]/70">{record.tx}</span>
-                    <button className="text-[#4e7050] hover:text-[#00e87a] transition-colors">
-                      <ExternalLink size={10} />
-                    </button>
-                  </div>
-                </td>
-                <td className="px-5 py-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-xs font-mono text-[#00e87a] hover:underline cursor-pointer">
-                      {record.dataLink}
-                    </span>
-                    <button className="text-[#4e7050] hover:text-[#00e87a] transition-colors">
-                      <ExternalLink size={10} />
-                    </button>
-                  </div>
-                </td>
-                <td className="px-5 py-3">
-                  <span className="text-xs text-[#4e7050] whitespace-nowrap font-mono">
-                    {record.time}
-                  </span>
+            {filteredRecords.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-5 py-8 text-center text-xs text-[#4e7050]">
+                  No proof records match the current filter.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredRecords.map((record, i) => (
+                <tr
+                  key={i}
+                  className="border-b border-[#1a2e1a] hover:bg-[#0f1a0f] transition-colors"
+                >
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <record.icon size={12} className={record.iconColor} />
+                      <span className={`text-xs font-mono font-semibold ${record.typeColor}`}>
+                        {record.type}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className="text-xs text-[#dceadc]">{record.agent}</span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className="text-xs text-[#dceadc]">{record.entity}</span>
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-mono text-[#dceadc]/70">{record.tx}</span>
+                      <button
+                        onClick={() => window.open(`https://explorer.arkiv.network/tx/${record.tx}`, '_blank')}
+                        className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
+                        title="View transaction"
+                      >
+                        <ExternalLink size={10} />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="text-xs font-mono text-[#00e87a] hover:underline cursor-pointer"
+                        onClick={() => window.open(`https://${record.dataLink.replace('data.arkiv://', '')}`, '_blank')}
+                      >
+                        {record.dataLink}
+                      </span>
+                      <button
+                        onClick={() => window.open(`https://${record.dataLink.replace('data.arkiv://', '')}`, '_blank')}
+                        className="text-[#4e7050] hover:text-[#00e87a] transition-colors"
+                        title="Open data link"
+                      >
+                        <ExternalLink size={10} />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-5 py-3">
+                    <span className="text-xs text-[#4e7050] whitespace-nowrap font-mono">
+                      {record.time}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -143,16 +236,17 @@ export function ProofRecords() {
       <div className="flex items-center justify-between px-5 py-2.5 border-t border-[#1a2e1a]">
         <div className="flex items-center gap-3">
           <span className="text-[10px] text-[#4e7050]">
-            Showing 4 of 4 records
+            Showing {filteredRecords.length} of {proofRecords.length} records
           </span>
           <div className="flex items-center gap-1">
             <span className="text-[#00e87a]">&#10003;</span>
-            <span className="text-[10px] text-[#4e7050]">
-              All proofs verified by Arkiv Braga
-            </span>
+            <span className="text-[10px] text-[#4e7050]">All proofs verified by Arkiv Braga</span>
           </div>
         </div>
-        <button className="flex items-center gap-1 text-[10px] font-semibold text-[#dceadc]/60 hover:text-[#dceadc] transition-colors uppercase tracking-wider">
+        <button
+          onClick={() => setProofModal(true)}
+          className="flex items-center gap-1 text-[10px] font-semibold text-[#dceadc]/60 hover:text-[#dceadc] transition-colors uppercase tracking-wider"
+        >
           View All Proofs
           <ExternalLink size={10} />
         </button>
