@@ -39,7 +39,7 @@ export function Header() {
           <h1 className="text-[11px] font-bold tracking-[0.15em] text-[#d4e8d4] uppercase leading-tight">
             Self-Evolving Agents
           </h1>
-          <p className="text-[9px] text-[#3d6040] leading-tight tracking-wide">
+          <p className="text-[10px] text-[#6a9e6e] leading-tight tracking-wide">
             Evolution Loop + Arkiv Soul Backup
           </p>
         </div>
@@ -54,7 +54,7 @@ export function Header() {
           <p className="text-[11px] font-bold text-[#d4e8d4] leading-tight">Arkiv Braga</p>
           <div className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00f080]" />
-            <span className="text-[9px] text-[#00f080] leading-none">Network Healthy</span>
+            <span className="text-[10px] text-[#00f080] leading-none">Network Healthy</span>
           </div>
         </div>
       </div>
@@ -69,17 +69,17 @@ export function Header() {
           target="_blank"
           rel="noreferrer"
           onClick={() => addToast('info', 'Opening Docs', 'Redirecting to Arkiv Network documentation')}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#1e3c1e] text-[11px] text-[#a8cca8] hover:text-[#d4e8d4] hover:border-[#2a502a] hover:bg-[#0b1510] transition-all"
         >
           <FileText size={11} />
           Docs
-          <ExternalLink size={9} className="opacity-40" />
+          <ExternalLink size={9} className="opacity-60" />
         </a>
 
         {/* CLI */}
         <button
           onClick={() => addToast('info', 'CLI Access', 'npm install -g @arkiv/cli  →  arkiv connect')}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/60 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#1e3c1e] text-[11px] text-[#a8cca8] hover:text-[#d4e8d4] hover:border-[#2a502a] hover:bg-[#0b1510] transition-all"
         >
           <Terminal size={11} />
           CLI

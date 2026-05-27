@@ -130,14 +130,14 @@ export function AgentCard() {
             {/* Integrity score */}
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <span className="text-[9px] font-bold tracking-[0.15em] text-[#3d6040] uppercase">
+                <span className="text-[10px] font-bold tracking-[0.12em] text-[#6a9e6e] uppercase">
                   Integrity Score
                 </span>
                 <button
                   onClick={() => addToast('info', 'Integrity Score', 'Measures whether this agent can evolve safely without losing its recoverable Soul state.')}
-                  className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                  className="text-[#6a9e6e] hover:text-[#00f080] transition-colors"
                 >
-                  <Info size={9} />
+                  <Info size={10} />
                 </button>
               </div>
 
@@ -158,8 +158,8 @@ export function AgentCard() {
               </div>
 
               <div className="flex items-center gap-1">
-                <span className="text-[9px] text-[#3d6040]">Threshold: 90%</span>
-                <Info size={8} className="text-[#3d6040]" />
+                <span className="text-[10px] text-[#6a9e6e]">Threshold: 90%</span>
+                <Info size={10} className="text-[#6a9e6e]" />
               </div>
             </div>
           </div>
@@ -169,10 +169,10 @@ export function AgentCard() {
 
             {/* Protected by */}
             <div className="flex items-start gap-2">
-              <Shield size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <Shield size={13} className="text-[#6a9e6e] mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Protected By</p>
-                <p className={`text-[11px] font-bold ${activeAgent.protectedBy === 'None' ? 'text-[#3d6040]' : 'text-[#00f080]'}`}>
+                <p className="text-[10px] font-bold tracking-[0.1em] text-[#6a9e6e] uppercase mb-0.5">Protected By</p>
+                <p className={`text-[12px] font-bold ${activeAgent.protectedBy === 'None' ? 'text-[#6a9e6e]' : 'text-[#00f080]'}`}>
                   {activeAgent.protectedBy}
                 </p>
               </div>
@@ -180,27 +180,27 @@ export function AgentCard() {
 
             {/* Last backup */}
             <div className="flex items-start gap-2">
-              <Clock size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <Clock size={13} className="text-[#6a9e6e] mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Last Decentralized Backup</p>
-                <p className="text-[11px] font-semibold text-[#d4e8d4]">{activeAgent.lastBackup}</p>
-                <p className="text-[9px] text-[#3d6040] font-mono mt-0.5">{activeAgent.block}</p>
+                <p className="text-[10px] font-bold tracking-[0.1em] text-[#6a9e6e] uppercase mb-0.5">Last Decentralized Backup</p>
+                <p className="text-[12px] font-semibold text-[#d4e8d4]">{activeAgent.lastBackup}</p>
+                <p className="text-[10px] text-[#6a9e6e] font-mono mt-0.5">{activeAgent.block}</p>
               </div>
             </div>
 
             {/* Soul ID */}
             <div className="flex items-start gap-2">
-              <Database size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <Database size={13} className="text-[#6a9e6e] mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Soul ID</p>
+                <p className="text-[10px] font-bold tracking-[0.1em] text-[#6a9e6e] uppercase mb-0.5">Soul ID</p>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-mono text-[#d4e8d4]">{activeAgent.soulId}</span>
+                  <span className="text-[12px] font-mono text-[#d4e8d4]">{activeAgent.soulId}</span>
                   <button
                     onClick={() => copyToClipboard(activeAgent.soulId, 'Soul ID')}
-                    className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                    className="text-[#6a9e6e] hover:text-[#00f080] transition-colors"
                     title="Copy Soul ID"
                   >
-                    <Copy size={9} />
+                    <Copy size={10} />
                   </button>
                 </div>
               </div>
@@ -208,17 +208,17 @@ export function AgentCard() {
 
             {/* Arkiv gate */}
             <div className="flex items-start gap-2">
-              <Globe size={13} className="text-[#3d6040] mt-0.5 flex-shrink-0" />
+              <Globe size={13} className="text-[#6a9e6e] mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-[9px] font-bold tracking-[0.12em] text-[#3d6040] uppercase mb-0.5">Arkiv Gate</p>
+                <p className="text-[10px] font-bold tracking-[0.1em] text-[#6a9e6e] uppercase mb-0.5">Arkiv Gate</p>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-semibold text-[#d4e8d4]">{activeAgent.arkivGate}</span>
+                  <span className="text-[12px] font-semibold text-[#d4e8d4]">{activeAgent.arkivGate}</span>
                   <button
                     onClick={() => addToast('info', 'Arkiv Gate', `Opening ${activeAgent.arkivGate}`)}
-                    className="text-[#3d6040] hover:text-[#00f080] transition-colors"
+                    className="text-[#6a9e6e] hover:text-[#00f080] transition-colors"
                     title="Open Arkiv Gate"
                   >
-                    <ExternalLink size={9} />
+                    <ExternalLink size={10} />
                   </button>
                 </div>
               </div>
@@ -237,7 +237,7 @@ export function AgentCard() {
           </button>
           <button
             onClick={handleSecondaryAction}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#162816] text-[11px] font-bold tracking-[0.12em] uppercase text-[#d4e8d4]/60 bg-[#060b06] hover:bg-[#0d180d] hover:border-[#1e3c1e] hover:text-[#d4e8d4] active:scale-[0.98] transition-all duration-150"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#1e3c1e] text-[11px] font-bold tracking-[0.12em] uppercase text-[#a8cca8] bg-[#060b06] hover:bg-[#0d180d] hover:border-[#2a502a] hover:text-[#d4e8d4] active:scale-[0.98] transition-all duration-150"
           >
             <RefreshCw size={13} />
             {secondaryLabel}
@@ -246,7 +246,7 @@ export function AgentCard() {
         {activeAgent.id !== 'hermit' && (
           <button
             onClick={handleTertiaryAction}
-            className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#162816] text-[10px] font-bold tracking-[0.12em] uppercase text-[#3d6040] bg-[#060b06] hover:bg-[#0d180d] hover:text-[#d4e8d4] transition-all duration-150"
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#1e3c1e] text-[10px] font-bold tracking-[0.12em] uppercase text-[#6a9e6e] bg-[#060b06] hover:bg-[#0d180d] hover:text-[#d4e8d4] transition-all duration-150"
           >
             <RefreshCw size={12} />
             Revive From Arkiv
