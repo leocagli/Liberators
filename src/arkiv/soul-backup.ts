@@ -39,6 +39,10 @@ export type SoulBackupPublicClient = {
   buildQuery: () => SoulBackupQueryBuilder;
 };
 
+export type SoulBackupReadClient = SoulBackupPublicClient & {
+  getEntity: (entityKey: `0x${string}`) => Promise<{ toJson: () => unknown } | null>;
+};
+
 export function buildSoulBackupAttributes(input: {
   liberatorName: LiberatorName;
   version: string;
@@ -93,6 +97,15 @@ export async function restoreSoulFromBackup(input: {
   liberatorName: LiberatorName;
   limit?: number;
 }): Promise<SoulBackup | null> {
+  const backups = await querySoulBackups(input);
+  return backups[0] ?? null;
+}
+
+export async function querySoulBackups(input: {
+  publicClient: SoulBackupPublicClient;
+  liberatorName: LiberatorName;
+  limit?: number;
+}): Promise<SoulBackup[]> {
   const result = await input.publicClient
     .buildQuery()
     .where([
@@ -107,11 +120,23 @@ export async function restoreSoulFromBackup(input: {
     .limit(input.limit ?? 20)
     .fetch();
 
-  const backups = result.entities
+  return result.entities
     .map((entity) => SoulBackupSchema.safeParse(entity.toJson()))
     .filter((parsed): parsed is { success: true; data: SoulBackup } => parsed.success)
     .map((parsed) => parsed.data)
     .sort((a, b) => b.createdAt - a.createdAt);
+}
 
-  return backups[0] ?? null;
+export async function getSoulBackupByEntityKey(input: {
+  publicClient: SoulBackupReadClient;
+  entityKey: `0x${string}`;
+}): Promise<SoulBackup | null> {
+  const entity = await input.publicClient.getEntity(input.entityKey);
+
+  if (!entity) {
+    return null;
+  }
+
+  const parsed = SoulBackupSchema.safeParse(entity.toJson());
+  return parsed.success ? parsed.data : null;
 }

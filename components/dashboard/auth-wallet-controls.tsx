@@ -1,86 +1,119 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { signIn, signOut, useSession } from 'next-auth/react'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { Copy, LogIn, LogOut, Wallet } from 'lucide-react'
 
 import { useDashboard } from './dashboard-context'
-
-type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
-}
-
-function getEthereumProvider(): EthereumProvider | null {
-  if (typeof window === 'undefined') return null
-  return (window as typeof window & { ethereum?: EthereumProvider }).ethereum ?? null
-}
 
 function compactAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 
 export function AuthWalletControls() {
+  const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
+
+  if (!privyAppId) {
+    return <PrivySetupMissing />
+  }
+
+  return <PrivyAuthWalletControls />
+}
+
+function PrivySetupMissing() {
   const { addToast, copyToClipboard } = useDashboard()
-  const { data: session, status } = useSession()
+  const fallbackAddress = '0xab5bdE0d39EC4C2Ca1dd74d1811e22Fd6a98B59b'
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <button
+        onClick={() =>
+          addToast(
+            'error',
+            'Privy Setup Required',
+            'Set NEXT_PUBLIC_PRIVY_APP_ID in Vercel to enable Google and wallet login.',
+          )
+        }
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/70 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
+      >
+        <LogIn size={11} />
+        Privy Setup
+      </button>
+      <button
+        onClick={() => copyToClipboard(fallbackAddress, 'Backend Arkiv wallet')}
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#00f080]/30 text-[10px] text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 transition-all"
+        title="Copy backend Arkiv wallet"
+      >
+        <Wallet size={11} />
+        Backend Wallet
+      </button>
+    </div>
+  )
+}
+
+function getPrivyUserLabel(user: unknown) {
+  const data = user as {
+    google?: { email?: string; name?: string }
+    email?: { address?: string }
+    wallet?: { address?: string }
+  } | null
+
+  return (
+    data?.google?.name?.split(' ')[0] ??
+    data?.google?.email ??
+    data?.email?.address ??
+    (data?.wallet?.address ? compactAddress(data.wallet.address) : 'Privy')
+  )
+}
+
+function PrivyAuthWalletControls() {
+  const { addToast, copyToClipboard } = useDashboard()
+  const { ready, authenticated, user, login, logout } = usePrivy()
+  const { wallets } = useWallets()
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [walletLoading, setWalletLoading] = useState(false)
 
   useEffect(() => {
-    const saved = window.localStorage.getItem('liberators.connectedWallet')
-    if (saved) setWalletAddress(saved)
-  }, [])
+    const address = wallets[0]?.address ?? null
+    setWalletAddress(address)
 
-  const connectWallet = async () => {
-    const provider = getEthereumProvider()
-
-    if (!provider) {
-      addToast('error', 'Wallet Missing', 'Install MetaMask or another EIP-1193 wallet to connect.')
+    if (address) {
+      window.localStorage.setItem('liberators.connectedWallet', address)
       return
     }
 
-    setWalletLoading(true)
-    try {
-      const accounts = await provider.request({ method: 'eth_requestAccounts' })
-      const [address] = accounts as string[]
+    window.localStorage.removeItem('liberators.connectedWallet')
+  }, [wallets])
 
-      if (!address) {
-        throw new Error('No wallet account returned.')
-      }
-
-      setWalletAddress(address)
-      window.localStorage.setItem('liberators.connectedWallet', address)
-      addToast('success', 'Wallet Connected', `${compactAddress(address)} linked to this session`)
-    } catch (error) {
-      addToast('error', 'Wallet Failed', error instanceof Error ? error.message : 'Unable to connect wallet.')
-    } finally {
-      setWalletLoading(false)
-    }
+  const loginWithPrivy = () => {
+    void login()
   }
 
-  const disconnectWallet = () => {
+  const logoutFromPrivy = async () => {
+    await logout()
     setWalletAddress(null)
     window.localStorage.removeItem('liberators.connectedWallet')
-    addToast('info', 'Wallet Disconnected', 'Browser wallet unlinked from this session')
+    addToast('info', 'Session Disconnected', 'Privy session and connected wallet cleared.')
   }
 
   return (
     <div className="flex items-center gap-1.5">
-      {status === 'authenticated' ? (
+      {authenticated ? (
         <button
-          onClick={() => signOut()}
+          onClick={logoutFromPrivy}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/70 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
-          title={session.user?.email ?? 'Google session'}
+          title="Disconnect Privy session"
         >
           <LogOut size={11} />
-          {session.user?.name?.split(' ')[0] ?? 'Google'}
+          {getPrivyUserLabel(user)}
         </button>
       ) : (
         <button
-          onClick={() => signIn('google')}
+          onClick={loginWithPrivy}
+          disabled={!ready}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#162816] text-[10px] text-[#d4e8d4]/70 hover:text-[#d4e8d4] hover:border-[#1e3c1e] hover:bg-[#0b1510] transition-all"
         >
           <LogIn size={11} />
-          Google
+          {ready ? 'Login' : 'Loading'}
         </button>
       )}
 
@@ -95,18 +128,18 @@ export function AuthWalletControls() {
             {compactAddress(walletAddress)}
             <Copy size={9} className="text-[#3d6040]" />
           </button>
-          <button onClick={disconnectWallet} className="text-[#3d6040] hover:text-red-400 transition-colors">
+          <button onClick={logoutFromPrivy} className="text-[#3d6040] hover:text-red-400 transition-colors">
             <LogOut size={10} />
           </button>
         </div>
       ) : (
         <button
-          onClick={connectWallet}
-          disabled={walletLoading}
+          onClick={loginWithPrivy}
+          disabled={!ready}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-[#00f080]/30 text-[10px] text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 transition-all disabled:opacity-60"
         >
           <Wallet size={11} />
-          {walletLoading ? 'Connecting' : 'Wallet'}
+          Wallet
         </button>
       )}
     </div>

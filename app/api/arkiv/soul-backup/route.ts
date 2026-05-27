@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
-import { createLiberatorsWalletClient } from '@/src/arkiv/client'
+import { createLiberatorsPublicClient, createLiberatorsWalletClient } from '@/src/arkiv/client'
 import { buildEvolutionLogInput } from '@/src/arkiv/memory'
-import { saveSoulBackupToArkiv } from '@/src/arkiv/soul-backup'
+import { getSoulBackupByEntityKey, querySoulBackups, saveSoulBackupToArkiv } from '@/src/arkiv/soul-backup'
 import { LiberatorNameSchema } from '@/src/arkiv/schemas'
 
 const BackupRequestSchema = z.object({
@@ -12,6 +12,53 @@ const BackupRequestSchema = z.object({
   integrityScore: z.number().min(0).max(100),
   content: z.string().min(1).max(20_000).optional(),
 })
+
+const BackupQuerySchema = z.object({
+  entityKey: z.string().regex(/^0x[0-9a-fA-F]+$/).optional(),
+  liberatorName: LiberatorNameSchema.default('valvrave'),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+})
+
+export async function GET(request: Request) {
+  try {
+    const url = new URL(request.url)
+    const input = BackupQuerySchema.parse(Object.fromEntries(url.searchParams))
+    const publicClient = createLiberatorsPublicClient()
+
+    if (input.entityKey) {
+      const backup = await getSoulBackupByEntityKey({
+        publicClient,
+        entityKey: input.entityKey as `0x${string}`,
+      })
+
+      return NextResponse.json({
+        ok: true,
+        mode: 'read',
+        entityKey: input.entityKey,
+        backup,
+      })
+    }
+
+    const backups = await querySoulBackups({
+      publicClient,
+      liberatorName: input.liberatorName,
+      limit: input.limit,
+    })
+
+    return NextResponse.json({
+      ok: true,
+      mode: 'query',
+      liberatorName: input.liberatorName,
+      count: backups.length,
+      backups,
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { ok: false, error: error instanceof Error ? error.message : 'Unable to read soul backups.' },
+      { status: 500 },
+    )
+  }
+}
 
 export async function POST(request: Request) {
   try {

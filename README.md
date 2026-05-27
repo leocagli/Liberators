@@ -1,6 +1,6 @@
 # Liberators
 
-<img width="1536" height="1024" alt="ChatGPT Image 26 may 2026, 08_54_02 p m" src="https://github.com/user-attachments/assets/ce67a0d5-beb5-4e2a-84ec-c5772227df8c" />
+![Liberators logo](public/liberators-logo.svg)
 
 Liberators is a Vercel-ready command center for self-evolving AI agents whose Soul can be backed up, proven, and recovered on Arkiv Braga.
 
@@ -12,8 +12,7 @@ The core idea is not just backup. The core idea is autonomous agent evolution wi
 - Stores the evolving agent Soul on Arkiv Braga as queryable decentralized backups.
 - Records proof logs for evolution, backup, revival, skill liberation, guardian integrity, and agent improvement.
 - Lets Hermit act as Soul Guardian and integrity verifier.
-- Supports Google login through NextAuth.
-- Supports browser wallet connection through EIP-1193 wallets such as MetaMask.
+- Supports Google login and wallet connect through Privy.
 - Runs as a Next.js app with server-side Arkiv writes, ready for Vercel deployment.
 
 ## Brand Assets
@@ -78,6 +77,8 @@ API route:
 
 ```txt
 POST /api/arkiv/soul-backup
+GET /api/arkiv/soul-backup?liberatorName=valvrave
+GET /api/arkiv/soul-backup?entityKey=0x...
 ```
 
 Writes:
@@ -85,6 +86,12 @@ Writes:
 - `entityType=soulBackup`
 - `proofType=soulBackupProof`
 - a linked `evolutionLog`
+
+The same route implements read/query for the first Arkiv entity type:
+
+- `POST` creates a `soulBackup`.
+- `GET ?entityKey=...` reads one `soulBackup` by Arkiv entity key.
+- `GET ?liberatorName=...` queries recent `soulBackup` entities for an agent.
 
 ### Revive From Arkiv
 
@@ -198,10 +205,7 @@ Required env vars:
 ```env
 ARKIV_PRIVATE_KEY=0x...
 ARKIV_RPC_URL=https://braga.hoodi.arkiv.network/rpc
-AUTH_SECRET=...
-AUTH_GOOGLE_ID=...
-AUTH_GOOGLE_SECRET=...
-NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_PRIVY_APP_ID=...
 ```
 
 Optional ArkivGate env vars:
@@ -249,40 +253,23 @@ For direct CLI writes on the same Windows setup:
 set NODE_OPTIONS=--use-system-ca&& npm run backup:soul
 ```
 
-## Google Login
+## Privy Login
 
-Google OAuth is wired with NextAuth at:
+Google login and wallet connect are handled by Privy on the client side. This avoids the previous server configuration failure from Google OAuth callbacks and keeps the Vercel app simpler.
 
-```txt
-/api/auth/[...nextauth]
-```
+Create a Privy app, enable Google and wallet login, and add the deployed domain as an allowed origin.
 
-Create OAuth credentials in Google Cloud and set:
+Set:
 
 ```env
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
-AUTH_SECRET=
-NEXTAUTH_URL=https://your-vercel-domain.vercel.app
+NEXT_PUBLIC_PRIVY_APP_ID=
 ```
 
-Authorized redirect URI:
+If this env var is missing, the dashboard still builds and runs, but the header shows `Privy Setup` instead of opening the login modal.
 
-```txt
-https://your-vercel-domain.vercel.app/api/auth/callback/google
-```
+## Wallet Connect
 
-Local redirect URI:
-
-```txt
-http://localhost:3000/api/auth/callback/google
-```
-
-## Browser Wallet Connect
-
-The header includes a `Wallet` button that connects to an injected EIP-1193 wallet such as MetaMask.
-
-This is separate from `ARKIV_PRIVATE_KEY`:
+The header includes a wallet button powered by Privy. This is separate from `ARKIV_PRIVATE_KEY`:
 
 - Browser wallet: user identity and UI session.
 - `ARKIV_PRIVATE_KEY`: trusted backend publisher for Arkiv writes.
@@ -346,10 +333,7 @@ Set these environment variables in Vercel:
 ```env
 ARKIV_PRIVATE_KEY=0x...
 ARKIV_RPC_URL=https://braga.hoodi.arkiv.network/rpc
-AUTH_SECRET=...
-AUTH_GOOGLE_ID=...
-AUTH_GOOGLE_SECRET=...
-NEXTAUTH_URL=https://your-vercel-domain.vercel.app
+NEXT_PUBLIC_PRIVY_APP_ID=...
 LIBERATORS_API_BASE_URL=https://your-vercel-domain.vercel.app
 ```
 
@@ -375,7 +359,7 @@ Arkiv write: confirmed
 
 ## Core Files
 
-- `app/api/arkiv/soul-backup/route.ts`: writes Soul backups and backup proofs.
+- `app/api/arkiv/soul-backup/route.ts`: creates, reads, and queries Soul backups plus backup proofs.
 - `app/api/arkiv/revive/route.ts`: restores from latest decentralized Soul backup.
 - `app/api/arkiv/improvement/route.ts`: writes agent improvement proofs.
 - `app/api/arkiv/wallet/route.ts`: exposes public backend wallet metadata.
