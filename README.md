@@ -80,6 +80,33 @@ POST /api/arkiv/improvement
 
 Records an `agentImprovementProof`. This is a proof of progress, not the Soul backup itself.
 
+### Skill Creation And Improvement
+
+Frontend buttons: `Create Skill` and `Improve Skill`
+
+API route:
+
+```txt
+POST /api/arkiv/skill
+```
+
+This is Unchained's workflow. The dashboard lets the operator choose a skill template first, then either create a new skill or improve an existing one.
+
+Current example skill templates in the UI:
+
+- `Hyperion`
+- `Mnemosyne`
+- `Sentinel`
+
+Writes:
+
+- `entityType=skill`
+- `proofType=skillLiberationProof` for new skills
+- `proofType=evolutionProof` for skill improvements
+- a linked `evolutionLog`
+
+This is how Liberators shows that agents do not just preserve memory. They can also expand their capabilities over time through versioned skills stored and proven on Arkiv.
+
 ### Backup Evolution Soul
 
 Frontend button: `Backup Soul`
