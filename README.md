@@ -1,8 +1,9 @@
 # Liberators
 
-![Liberators logo](public/liberators-logo.svg)
+<img width="1536" height="1024" alt="ChatGPT Image 26 may 2026, 08_54_02 p m" src="https://github.com/user-attachments/assets/ce67a0d5-beb5-4e2a-84ec-c5772227df8c" />
 
-Liberators is a Vercel-ready command center for AI agents with owned, persistent, recoverable memory on Arkiv Braga.
+
+Liberators is a command center for AI agents with owned, persistent, recoverable memory on Arkiv Braga.
 
 The core idea is simple: if an agent dies, it can be reconstructed from its decentralized `soulBackup` on Arkiv instead of depending on a fragile centralized database.
 
