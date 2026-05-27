@@ -300,6 +300,8 @@ Do not expose `ARKIV_PRIVATE_KEY` to the client.
 
 Hermes is integrated as an external persistent runtime, not as a Vercel Function. The Vercel app remains the dashboard and trusted Arkiv publisher; Hermes runs on WSL2, local, or a VPS and calls the dashboard API.
 
+In the dashboard, `Integrations -> Hermes` should be understood as bridge/runtime configuration, not Arkiv configuration. Hermes is the external agent runtime. The dashboard is the API surface Hermes calls to record backups, evolution proofs, and revival checkpoints.
+
 Hermes files:
 
 ```txt
@@ -317,6 +319,12 @@ Bridge env:
 ```env
 LIBERATORS_API_BASE_URL=http://127.0.0.1:3000
 ```
+
+Connection direction:
+
+- Hermes runtime -> dashboard API
+- dashboard API -> Arkiv Braga
+- Arkiv Braga -> proof links shown back in the dashboard
 
 Bridge commands:
 

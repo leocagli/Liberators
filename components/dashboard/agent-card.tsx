@@ -9,7 +9,7 @@ import { buildProofRecord } from './proof-data'
 const TOTAL_SEGMENTS = 28
 
 export function AgentCard() {
-  const { activeAgent, setBackupModal, setReviveModal, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
+  const { activeAgent, setBackupModal, setReviveModal, setSkillModal, setSkillActionMode, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
   const [actionLoading, setActionLoading] = useState<'primary' | 'secondary' | null>(null)
   const filledSegments = Math.round((activeAgent.integrityScore / 100) * TOTAL_SEGMENTS)
 
@@ -63,46 +63,6 @@ export function AgentCard() {
     }
   }
 
-  const runSkillAction = async (action: 'create' | 'improve') => {
-    setActionLoading(action === 'create' ? 'primary' : 'secondary')
-    try {
-      const response = await fetch('/api/arkiv/skill', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          liberatorName: 'unchained',
-          action,
-          skillName: action === 'create' ? 'Hyperion Skill' : 'Hyperion Skill Patch',
-          version: activeAgent.version,
-          context:
-            action === 'create'
-              ? 'Unchained minted a new reusable skill package for the Liberators family.'
-              : 'Unchained iterated an existing skill with Valvrave feedback and stronger execution paths.',
-        }),
-      })
-      const data = await response.json()
-
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error ?? 'Unable to write skill proof.')
-      }
-
-      prependProofRecord(buildProofRecord({
-        type: action === 'create' ? 'skillLiberationProof' : 'evolutionProof',
-        agent: activeAgent.name,
-        entity: action === 'create' ? data.skillName : `${data.skillName} improved`,
-        txHash: data.logTxHash ?? data.txHash,
-        entityKey: data.logEntityKey ?? data.entityKey,
-        timestamp: Date.now(),
-      }))
-      setActiveNav('proofs')
-      addToast('success', action === 'create' ? 'Skill Created' : 'Skill Improved', `${data.skillName} was recorded on Arkiv.`)
-    } catch (error) {
-      addToast('error', 'Skill Action Failed', error instanceof Error ? error.message : 'Unable to write skill proof.')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
   const openBackupFlow = () => {
     setActionLoading('primary')
     setBackupModal(true)
@@ -116,7 +76,8 @@ export function AgentCard() {
     }
 
     if (activeAgent.id === 'unchained') {
-      void runSkillAction('create')
+      setSkillActionMode('create')
+      setSkillModal(true)
       return
     }
 
@@ -130,7 +91,8 @@ export function AgentCard() {
     }
 
     if (activeAgent.id === 'unchained') {
-      void runSkillAction('improve')
+      setSkillActionMode('improve')
+      setSkillModal(true)
       return
     }
 

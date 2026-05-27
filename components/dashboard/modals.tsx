@@ -2,9 +2,9 @@
 
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2 } from 'lucide-react'
+import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2, Wrench } from 'lucide-react'
 import { buildProofRecord } from './proof-data'
-import { useDashboard } from './dashboard-context'
+import { SKILL_TEMPLATES, useDashboard } from './dashboard-context'
 
 /* ── Backup Soul Modal ─────────────────────────────────────────── */
 export function BackupModal() {
@@ -274,6 +274,146 @@ export function ProofModal() {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+    </Overlay>
+  )
+}
+
+export function SkillModal() {
+  const {
+    skillModal,
+    setSkillModal,
+    skillActionMode,
+    activeAgent,
+    addToast,
+    prependProofRecord,
+    setActiveNav,
+  } = useDashboard()
+  const [selectedSkillId, setSelectedSkillId] = useState(SKILL_TEMPLATES[0]?.id ?? '')
+  const [loading, setLoading] = useState(false)
+
+  if (!skillModal) return null
+
+  const selectedSkill = SKILL_TEMPLATES.find((skill) => skill.id === selectedSkillId) ?? SKILL_TEMPLATES[0]
+
+  const handleSubmit = async () => {
+    if (!selectedSkill) {
+      addToast('error', 'Skill Missing', 'Choose a skill template first.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/arkiv/skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          liberatorName: 'unchained',
+          action: skillActionMode,
+          skillName: selectedSkill.name,
+          version: activeAgent.version,
+          context: skillActionMode === 'create' ? selectedSkill.createContext : selectedSkill.improveContext,
+        }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Unable to write skill proof.')
+      }
+
+      prependProofRecord(buildProofRecord({
+        type: skillActionMode === 'create' ? 'skillLiberationProof' : 'evolutionProof',
+        agent: activeAgent.name,
+        entity: skillActionMode === 'create' ? data.skillName : `${data.skillName} improved`,
+        txHash: data.logTxHash ?? data.txHash,
+        entityKey: data.logEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      setActiveNav('proofs')
+      setSkillModal(false)
+      addToast('success', skillActionMode === 'create' ? 'Skill Created' : 'Skill Improved', `${data.skillName} was recorded on Arkiv.`)
+    } catch (error) {
+      addToast('error', 'Skill Action Failed', error instanceof Error ? error.message : 'Unable to write skill proof.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Overlay onClose={() => { if (!loading) setSkillModal(false) }}>
+      <div className="w-full max-w-2xl">
+        <ModalHeader
+          title={skillActionMode === 'create' ? 'Create Skill' : 'Improve Skill'}
+          icon={<Wrench size={14} className="text-[#8b5cf6]" />}
+          onClose={() => setSkillModal(false)}
+          disabled={loading}
+          accent="#8b5cf6"
+        />
+        <div className="p-5">
+          <p className="text-[11px] text-[#3d6040] mb-4">
+            Unchained should pick a concrete skill before writing a proof. Choose a template and review what kind of improvement it represents.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+            {SKILL_TEMPLATES.map((skill) => {
+              const active = skill.id === selectedSkillId
+              return (
+                <button
+                  key={skill.id}
+                  onClick={() => setSelectedSkillId(skill.id)}
+                  className={`rounded-md border p-3 text-left transition-colors ${active ? 'border-[#8b5cf6]/50 bg-[#8b5cf6]/10' : 'border-[#162816] bg-[#060b06] hover:bg-[#0d180d]'}`}
+                >
+                  <div className={`text-[10px] font-bold uppercase tracking-widest ${active ? 'text-[#8b5cf6]' : 'text-[#d4e8d4]'}`}>
+                    {skill.name}
+                  </div>
+                  <p className="mt-2 text-[10px] leading-relaxed text-[#3d6040]">{skill.summary}</p>
+                </button>
+              )
+            })}
+          </div>
+          {selectedSkill && (
+            <div className="border border-[#162816] rounded-md p-3 bg-[#060b06] mb-5">
+              <Row label="Skill" value={selectedSkill.name} highlight />
+              <div className="mt-3">
+                <div className="text-[9px] text-[#3d6040] mb-1">Write context</div>
+                <p className="text-[10px] text-[#d4e8d4]/80 leading-relaxed">
+                  {skillActionMode === 'create' ? selectedSkill.createContext : selectedSkill.improveContext}
+                </p>
+              </div>
+              {skillActionMode === 'improve' && (
+                <div className="mt-3">
+                  <div className="text-[9px] text-[#3d6040] mb-1">Improvement examples</div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedSkill.improveExamples.map((example) => (
+                      <span key={example} className="px-2 py-1 rounded border border-[#162816] text-[9px] text-[#d4e8d4]/70">
+                        {example}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="flex gap-3">
+            <button
+              onClick={() => setSkillModal(false)}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-md border border-[#162816] text-[10px] font-bold uppercase tracking-widest text-[#3d6040] hover:text-[#d4e8d4] transition-colors disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !selectedSkill}
+              className="flex-1 py-2.5 rounded-md border border-[#8b5cf6]/40 text-[10px] font-bold uppercase tracking-widest text-[#8b5cf6] bg-[#8b5cf6]/5 hover:bg-[#8b5cf6]/10 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loading ? (
+                <><Loader2 size={12} className="animate-spin" /> Writing...</>
+              ) : (
+                <><Wrench size={12} /> {skillActionMode === 'create' ? 'Confirm Skill' : 'Confirm Improvement'}</>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </Overlay>

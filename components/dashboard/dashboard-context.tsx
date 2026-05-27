@@ -5,6 +5,7 @@ import { initialProofRecords, type ProofRecord } from './proof-data'
 
 export type AgentId = 'valvrave' | 'unchained' | 'hermit'
 export type NavId = 'command' | 'proofs' | 'arkiv' | 'agents' | 'integrations' | 'settings'
+export type SkillActionMode = 'create' | 'improve'
 
 export interface Agent {
   id: AgentId
@@ -77,6 +78,42 @@ export interface Toast {
   message: string
 }
 
+export type SkillTemplate = {
+  id: string
+  name: string
+  summary: string
+  createContext: string
+  improveContext: string
+  improveExamples: string[]
+}
+
+export const SKILL_TEMPLATES: SkillTemplate[] = [
+  {
+    id: 'hyperion',
+    name: 'Hyperion',
+    summary: 'Execution skill for stronger autonomous planning and follow-through.',
+    createContext: 'Unchained minted Hyperion as a reusable execution skill for long-running Liberators tasks.',
+    improveContext: 'Hyperion can get better at decomposing objectives into stable execution loops.',
+    improveExamples: ['Better task decomposition', 'Safer retries on failure', 'Clearer step ordering'],
+  },
+  {
+    id: 'mnemosyne',
+    name: 'Mnemosyne',
+    summary: 'Memory skill for preserving context, summaries, and recoverable state.',
+    createContext: 'Unchained created Mnemosyne to preserve higher-quality memory transitions across agent runs.',
+    improveContext: 'Mnemosyne can get better at memory compression and Soul recall quality.',
+    improveExamples: ['Sharper summaries', 'Less memory drift', 'Better recovery context'],
+  },
+  {
+    id: 'sentinel',
+    name: 'Sentinel',
+    summary: 'Guardian-oriented skill for integrity checks and protection workflows.',
+    createContext: 'Unchained created Sentinel to improve guardian monitoring and protection steps.',
+    improveContext: 'Sentinel can get better at integrity verification and backup decision timing.',
+    improveExamples: ['Faster integrity checks', 'Smarter backup triggers', 'Cleaner guardian alerts'],
+  },
+]
+
 interface DashboardState {
   agents: Agent[]
   activeAgentId: AgentId
@@ -87,6 +124,8 @@ interface DashboardState {
   backupModal: boolean
   reviveModal: boolean
   proofModal: boolean
+  skillModal: boolean
+  skillActionMode: SkillActionMode
   notifOpen: boolean
   profileOpen: boolean
   filterOpen: boolean
@@ -100,6 +139,8 @@ interface DashboardState {
   setBackupModal: (v: boolean) => void
   setReviveModal: (v: boolean) => void
   setProofModal: (v: boolean) => void
+  setSkillModal: (v: boolean) => void
+  setSkillActionMode: (v: SkillActionMode) => void
   setNotifOpen: (v: boolean) => void
   setProfileOpen: (v: boolean) => void
   setFilterOpen: (v: boolean) => void
@@ -118,6 +159,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [backupModal, setBackupModal] = useState(false)
   const [reviveModal, setReviveModal] = useState(false)
   const [proofModal, setProofModal] = useState(false)
+  const [skillModal, setSkillModal] = useState(false)
+  const [skillActionMode, setSkillActionMode] = useState<SkillActionMode>('create')
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
@@ -161,6 +204,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         backupModal,
         reviveModal,
         proofModal,
+        skillModal,
+        skillActionMode,
         notifOpen,
         profileOpen,
         filterOpen,
@@ -174,6 +219,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setBackupModal,
         setReviveModal,
         setProofModal,
+        setSkillModal,
+        setSkillActionMode,
         setNotifOpen,
         setProfileOpen,
         setFilterOpen,
