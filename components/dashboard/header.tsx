@@ -37,10 +37,10 @@ export function Header() {
         </div>
         <div className="min-w-0">
           <h1 className="text-[11px] font-bold tracking-[0.15em] text-[#d4e8d4] uppercase leading-tight">
-            Soul Backup &amp; Revival
+            Self-Evolving Agents
           </h1>
           <p className="text-[9px] text-[#3d6040] leading-tight tracking-wide">
-            Soul Recovery Command Center
+            Evolution Loop + Arkiv Soul Backup
           </p>
         </div>
       </div>

@@ -2,15 +2,15 @@
 
 <img width="1536" height="1024" alt="ChatGPT Image 26 may 2026, 08_54_02 p m" src="https://github.com/user-attachments/assets/ce67a0d5-beb5-4e2a-84ec-c5772227df8c" />
 
+Liberators is a Vercel-ready command center for self-evolving AI agents whose Soul can be backed up, proven, and recovered on Arkiv Braga.
 
-Liberators is a command center for AI agents with owned, persistent, recoverable memory on Arkiv Braga.
-
-The core idea is simple: if an agent dies, it can be reconstructed from its decentralized `soulBackup` on Arkiv instead of depending on a fragile centralized database.
+The core idea is not just backup. The core idea is autonomous agent evolution with a recoverable Soul: agents improve themselves over time, and each important evolution can be checkpointed as a decentralized `soulBackup` on Arkiv. If the runtime dies, the agent can continue from owned memory instead of losing identity in a centralized database failure.
 
 ## What It Does
 
-- Stores agent Soul backups on Arkiv Braga as queryable decentralized entities.
-- Records proof logs for backup, revival, evolution, skill liberation, guardian integrity, and agent improvement.
+- Lets agents evolve through explicit improvement checkpoints.
+- Stores the evolving agent Soul on Arkiv Braga as queryable decentralized backups.
+- Records proof logs for evolution, backup, revival, skill liberation, guardian integrity, and agent improvement.
 - Lets Hermit act as Soul Guardian and integrity verifier.
 - Supports Google login through NextAuth.
 - Supports browser wallet connection through EIP-1193 wallets such as MetaMask.
@@ -58,9 +58,21 @@ Proof types:
 
 ## Implemented Flows
 
-### Backup Soul
+### Self-Evolution Checkpoint
 
-Frontend button: `Backup Soul`
+Frontend button: `Evolve`
+
+API route:
+
+```txt
+POST /api/arkiv/improvement
+```
+
+Records an `agentImprovementProof`, useful for showing that an agent is iterating toward better skills, better behavior, and competition readiness.
+
+### Backup Evolution Soul
+
+Frontend button: `Backup Evolution Soul`
 
 API route:
 
@@ -85,18 +97,6 @@ POST /api/arkiv/revive
 ```
 
 Reads the latest decentralized `soulBackup` for the selected agent, reconstructs a new `soul`, and records a revival checkpoint.
-
-### Agent Improvement Proof
-
-Frontend button: `Improve`
-
-API route:
-
-```txt
-POST /api/arkiv/improvement
-```
-
-Records an `agentImprovementProof`, useful for showing that an agent is being iterated toward competition or submission readiness.
 
 ### Wallet Status
 

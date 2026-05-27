@@ -74,7 +74,7 @@ export const proofRecords = [
     icon: Trophy,
     iconColor: 'text-[#f97316]',
     agent: 'Valvrave',
-    entity: 'Competition readiness proofs',
+    entity: 'Self-evolution checkpoints',
     tx: 'query',
     txUrl: proofQueryUrl('agentImprovementProof'),
     dataLink: 'data.arkiv.network/?query=agentImprovementProof',

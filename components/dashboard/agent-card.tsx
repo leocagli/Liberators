@@ -84,7 +84,7 @@ export function AgentCard() {
                   Integrity Score
                 </span>
                 <button
-                  onClick={() => addToast('info', 'Integrity Score', 'Measures soul completeness and backup health. 90% is the minimum threshold for full protection.')}
+                  onClick={() => addToast('info', 'Integrity Score', 'Measures whether this agent can evolve safely without losing its recoverable Soul state.')}
                   className="text-[#3d6040] hover:text-[#00f080] transition-colors"
                 >
                   <Info size={9} />
@@ -183,7 +183,7 @@ export function AgentCard() {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#00f080]/40 text-[11px] font-bold tracking-[0.12em] uppercase text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 hover:border-[#00f080]/60 hover:shadow-[0_0_12px_rgba(0,240,128,0.12)] active:scale-[0.98] transition-all duration-150"
           >
             <Upload size={13} />
-            Backup Soul
+            Backup Evolution Soul
           </button>
           <button
             onClick={() => setReviveModal(true)}

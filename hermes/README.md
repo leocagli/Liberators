@@ -2,7 +2,7 @@
 
 This folder contains the Hermes-side integration for the Liberators project.
 
-Liberators keeps the Vercel dashboard and Arkiv write APIs in the Next.js app. Hermes runs separately as the persistent agent runtime on a local machine, WSL2, or VPS.
+Liberators is about self-evolving agents with recoverable Souls. Hermes runs separately as the persistent runtime that can improve an agent over time; the Vercel dashboard and Arkiv write APIs store evolution checkpoints and Soul backups.
 
 ## Runtime Shape
 
@@ -73,7 +73,7 @@ Record a decentralized soul backup:
 npm run hermes:backup -- --agent valvrave --version v2.4.1 --integrity 99 --content "Valvrave checkpoint from Hermes."
 ```
 
-Record an agent improvement proof:
+Record a self-evolution proof:
 
 ```bash
 npm run hermes:improve -- --agent valvrave --version v2.4.1 --integrity 99 --context "Competition readiness checkpoint."

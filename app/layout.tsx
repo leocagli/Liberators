@@ -15,8 +15,8 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Liberators - Soul Backup & Revival',
-  description: 'Soul Recovery Command Center powered by Arkiv Network',
+  title: 'Liberators - Self-Evolving Agents on Arkiv',
+  description: 'Autonomous agent evolution with decentralized Soul backups on Arkiv',
   icons: {
     icon: '/liberators-mark.svg',
     apple: '/liberators-logo.svg',

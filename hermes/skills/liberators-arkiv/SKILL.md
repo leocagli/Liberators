@@ -1,16 +1,16 @@
 ---
 name: liberators-arkiv
-description: Use this skill when operating a Liberators Hermes agent that needs to persist Soul backups, revive from Arkiv, record improvement proofs, or coordinate Valvrave, Unchained, and Hermit memory workflows through the Liberators dashboard API.
+description: Use this skill when operating a self-evolving Liberators Hermes agent that needs to persist Soul backups, revive from Arkiv, record evolution proofs, or coordinate Valvrave, Unchained, and Hermit memory workflows through the Liberators dashboard API.
 ---
 
 # Liberators Arkiv Skill
 
-Liberators is a family of AI agents whose critical memory is stored as Arkiv entities.
+Liberators is a family of self-evolving AI agents whose critical Soul state is checkpointed as Arkiv entities.
 
 Use this skill whenever:
 
 - an agent is about to evolve;
-- an agent learns an important reusable lesson;
+- an agent learns an important reusable lesson or improves itself;
 - a Skill is created or improved;
 - Hermit needs to verify Soul integrity;
 - a runtime needs to be revived from decentralized memory.

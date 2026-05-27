@@ -78,7 +78,7 @@ export function ProofRecords() {
             className="flex items-center gap-1.5 px-2.5 py-1 rounded border border-[#f97316]/30 text-[9px] font-bold uppercase tracking-widest text-[#f97316] bg-[#f97316]/5 hover:bg-[#f97316]/10 disabled:opacity-50"
           >
             <Trophy size={9} />
-            {recordingImprovement ? 'Writing' : 'Improve'}
+            {recordingImprovement ? 'Writing' : 'Evolve'}
           </button>
           <div ref={filterRef} className="relative">
             <button

@@ -10,25 +10,25 @@ export function SoulRecoveryFlow() {
     {
       id: 'local',
       Icon: Monitor,
-      title: 'Local Soul',
-      description: 'Agent runtime / local environment',
+      title: 'Agent Learns',
+      description: 'Runtime observes, reasons, and proposes changes',
       status: activeAgent.status === 'IDLE' ? 'Idle' : 'Active',
       active: activeAgent.status !== 'IDLE',
     },
     {
       id: 'arkiv',
       Icon: Box,
-      title: 'Arkiv Soul Backup',
-      description: 'Decentralized storage on Arkiv Braga',
-      status: 'Backed Up',
+      title: 'Soul Checkpoint',
+      description: 'Self-evolution state backed up on Arkiv',
+      status: 'Recoverable',
       active: true,
     },
     {
       id: 'revival',
       Icon: Terminal,
-      title: 'Revival Runtime',
-      description: 'Reinstantiated agent in new runtime',
-      status: 'Ready',
+      title: 'Next Evolution',
+      description: 'Agent continues from owned memory',
+      status: 'Ready to evolve',
       active: true,
     },
   ]
@@ -40,10 +40,10 @@ export function SoulRecoveryFlow() {
       <div className="p-5">
         <div className="flex items-center gap-1.5 mb-4">
           <h3 className="text-[9px] font-bold tracking-[0.15em] text-[#d4e8d4] uppercase">
-            Soul Recovery Flow
+            Autonomous Evolution Loop
           </h3>
           <button
-            onClick={() => addToast('info', 'Soul Recovery Flow', 'Pipeline: Local Soul state → Arkiv decentralized backup → Revival in a new runtime.')}
+            onClick={() => addToast('info', 'Autonomous Evolution Loop', 'Pipeline: agent learns -> Soul checkpoint on Arkiv -> next self-improvement cycle.')}
             className="text-[#3d6040] hover:text-[#00f080] transition-colors"
           >
             <Info size={10} />
