@@ -5,18 +5,35 @@
 
 Liberators is a Vercel-ready command center for self-evolving AI agents with one critical guarantee: their Soul can be backed up, owned, and revived from Arkiv Braga.
 
-The core idea is simple: evolution should not depend on fragile centralized memory. Agents can improve over time, but the thing worth preserving is the full Soul. Liberators stores that Soul as a decentralized `soulBackup` on Arkiv, so if the runtime dies, the agent can come back from owned memory instead of starting from zero.
+Most agent demos show progress. Very few protect continuity.
+
+Liberators is built around that gap. Agents should be able to evolve, create new skills, and survive runtime failure without losing identity. The thing worth preserving is not just a proof that the agent changed. It is the full Soul.
+
+Liberators stores that Soul as a decentralized `soulBackup` on Arkiv. So if the runtime dies, the agent can come back from owned memory instead of restarting from zero in a fragile centralized system.
 
 ## What It Does
 
-- Lets agents evolve through explicit on-chain proof checkpoints.
+- Proves that agents are evolving through explicit on-chain checkpoints.
+- Lets agents create and improve skills as first-class Arkiv records.
 - Stores the full agent Soul on Arkiv Braga as a recoverable decentralized backup.
 - Revives agents from their latest `soulBackup`, not from a centralized database.
-- Records proof logs for evolution, backup, revival, skill liberation, and guardian integrity.
-- Gives each Liberator a distinct role and primary action in the dashboard.
+- Records proof logs for evolution, skill creation, skill improvement, backup, revival, and guardian integrity.
+- Gives each Liberator a distinct role and a clear primary action in the dashboard.
 - Lets Hermit act as Soul Guardian and integrity verifier.
 - Supports Google login and wallet connect through Privy.
 - Runs as a Next.js app with server-side Arkiv writes, ready for Vercel deployment.
+
+## Why It Matters
+
+If an agent improves but cannot survive infrastructure failure, it does not really own its memory.
+
+Liberators solves that in three layers:
+
+- `Valvrave` proves the agent is evolving.
+- `Unchained` expands what the agent can do by creating and improving skills.
+- `Hermit` preserves continuity by backing up the full Soul to Arkiv.
+
+That combination turns the agent from a session into a persistent, recoverable system.
 
 ## Brand Assets
 
@@ -34,6 +51,12 @@ Assets:
 | `Valvrave` | Evolution Master | Evolves the agent and records improvement proofs |
 | `Unchained` | Skill Liberator | Creates and improves skills |
 | `Hermit` | Soul Guardian | Protects and backs up the full Soul |
+
+These three roles map directly to the product story:
+
+- Valvrave answers: is the agent improving?
+- Unchained answers: is the agent gaining new capabilities?
+- Hermit answers: can the agent survive failure and come back intact?
 
 ## Arkiv Data Model
 
@@ -90,7 +113,7 @@ API route:
 POST /api/arkiv/skill
 ```
 
-This is Unchained's workflow. The dashboard lets the operator choose a skill template first, then either create a new skill or improve an existing one.
+This is Unchained's workflow. The dashboard lets the operator choose a skill template first, then either create a new skill or improve an existing one. The point is not just to log activity. It is to show that the agent can expand its capabilities over time, not only preserve memory.
 
 Current example skill templates in the UI:
 
@@ -105,7 +128,7 @@ Writes:
 - `proofType=evolutionProof` for skill improvements
 - a linked `evolutionLog`
 
-This is how Liberators shows that agents do not just preserve memory. They can also expand their capabilities over time through versioned skills stored and proven on Arkiv.
+This is how Liberators makes the skill layer visible in the product story. Agents do not just preserve memory. They build a capability stack that can be versioned, improved, and proven on Arkiv.
 
 ### Backup Evolution Soul
 
