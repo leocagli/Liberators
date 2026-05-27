@@ -9,6 +9,7 @@ import { LiberatorNameSchema } from '@/src/arkiv/schemas'
 const ImprovementRequestSchema = z.object({
   liberatorName: LiberatorNameSchema,
   version: z.string().min(1),
+  nextVersion: z.string().min(1).optional(),
   integrityScore: z.number().min(0).max(100),
   competitionContext: z.string().min(1).max(2000).default('Agent submission readiness checkpoint'),
 })
@@ -18,14 +19,15 @@ export async function POST(request: Request) {
     const input = ImprovementRequestSchema.parse(await request.json())
     const walletClient = createLiberatorsWalletClient()
     const timestamp = Date.now()
-    const versionNumber = parseInt(input.version.replace(/[^\d]/g, ''), 10) || 1
+    const evolvedVersion = input.nextVersion ?? input.version
+    const versionNumber = parseInt(evolvedVersion.replace(/[^\d]/g, ''), 10) || 1
 
     const entity = await walletClient.createEntity(
       buildCreateEntityInput({
         entityType: 'soul',
         payload: {
           liberatorName: input.liberatorName,
-          version: input.version,
+          version: evolvedVersion,
           versionNumber,
           content: `Agent improvement proof: ${input.competitionContext}. This checkpoint tracks progress toward agent submission quality.`,
           integrityScore: Math.round(input.integrityScore),
@@ -39,7 +41,7 @@ export async function POST(request: Request) {
       buildEvolutionLogInput({
         liberatorName: input.liberatorName,
         action: 'soul_updated',
-        description: `Agent improvement proof recorded for ${input.liberatorName}: ${input.competitionContext}.`,
+        description: `Agent improvement proof recorded for ${input.liberatorName} -> ${evolvedVersion}: ${input.competitionContext}.`,
         timestamp,
         txHash: entity.txHash,
         entityKey: entity.entityKey,
@@ -50,6 +52,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       proofType: 'agentImprovementProof',
+      version: evolvedVersion,
       entityKey: entity.entityKey,
       txHash: entity.txHash,
       entityExplorerUrl: entityExplorerUrl(entity.entityKey),

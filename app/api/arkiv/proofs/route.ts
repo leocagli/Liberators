@@ -17,7 +17,10 @@ function deriveEntityLabel(log: EvolutionLog) {
   }
 
   if (log.proofType === 'agentImprovementProof') {
-    return `${formatAgentName(log.liberatorName)} autonomous evolution`
+    const versionMatch = /->\s+([^\s:]+)/.exec(log.description)
+    return versionMatch?.[1]
+      ? `${formatAgentName(log.liberatorName)} -> ${versionMatch[1]}`
+      : `${formatAgentName(log.liberatorName)} autonomous evolution`
   }
 
   if (log.proofType === 'guardianIntegrityProof') {

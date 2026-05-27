@@ -2,26 +2,222 @@
 
 import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
-import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2, Wrench } from 'lucide-react'
+import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2, Wrench, Sparkles } from 'lucide-react'
 import { buildProofRecord } from './proof-data'
-import { SKILL_TEMPLATES, useDashboard } from './dashboard-context'
+import { SKILL_TEMPLATES, type Agent, type AgentId, useDashboard } from './dashboard-context'
+
+const EVOLUTION_EXAMPLES: Record<AgentId, string[]> = {
+  valvrave: [
+    'Planning loop goes from single-pass execution to retry-aware execution.',
+    'Memory summaries become shorter and more stable across long tasks.',
+    'Task checkpoints become explicit, making recovery cleaner after interruption.',
+  ],
+  unchained: [
+    'Skill authoring flow goes from static templates to reusable versioned skills.',
+    'Improvement suggestions become structured instead of free-form.',
+    'Skill metadata becomes easier to query and evolve on Arkiv.',
+  ],
+  hermit: [
+    'Guardian checks move from passive monitoring to active protection triggers.',
+    'Backup timing improves based on integrity thresholds.',
+    'Recovery decisions become clearer and easier to audit.',
+  ],
+}
+
+function bumpMinorVersion(version: string) {
+  const match = version.match(/^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?$/)
+
+  if (!match) {
+    return version
+  }
+
+  const prefix = version.startsWith('v') ? 'v' : ''
+  const major = Number(match[1] ?? '1')
+  const minor = Number(match[2] ?? '0') + 1
+
+  return `${prefix}${major}.${minor}.0`
+}
+
+function buildSoulSnapshot(agent: Agent) {
+  return JSON.stringify({
+    liberatorName: agent.id,
+    version: agent.version,
+    role: agent.id === 'valvrave' ? 'Evolution Master' : agent.id === 'unchained' ? 'Skill Liberator' : 'Soul Guardian',
+    protectedBy: agent.protectedBy,
+    integrityScore: agent.integrityScore,
+    recoveryNotes: `Decentralized soul checkpoint for ${agent.name}. Revive from Arkiv if runtime state is lost.`,
+  }, null, 2)
+}
+
+function SelectAgentGrid({
+  agents,
+  selectedId,
+  onSelect,
+}: {
+  agents: Agent[]
+  selectedId: AgentId
+  onSelect: (id: AgentId) => void
+}) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+      {agents.map((agent) => {
+        const active = agent.id === selectedId
+        return (
+          <button
+            key={agent.id}
+            onClick={() => onSelect(agent.id)}
+            className={`rounded-md border p-3 text-left transition-colors ${active ? 'border-[#00f080]/50 bg-[#00f080]/10' : 'border-[#162816] bg-[#060b06] hover:bg-[#0d180d]'}`}
+          >
+            <div className={`text-[10px] font-bold uppercase tracking-widest ${active ? 'text-[#00f080]' : 'text-[#d4e8d4]'}`}>
+              {agent.name}
+            </div>
+            <p className="mt-1 text-[10px] text-[#3d6040]">{agent.version}</p>
+            <p className="mt-2 text-[10px] leading-relaxed text-[#3d6040]">
+              {agent.id === 'valvrave' ? 'Evolution-focused runtime' : agent.id === 'unchained' ? 'Skill creation and improvement' : 'Guardian and recovery controls'}
+            </p>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+export function EvolveModal() {
+  const { agents, activeAgent, evolveModal, setEvolveModal, addToast, prependProofRecord, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
+  const [selectedAgentId, setSelectedAgentId] = useState<AgentId>(activeAgent.id)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (evolveModal) {
+      setSelectedAgentId(activeAgent.id)
+    } else {
+      setLoading(false)
+    }
+  }, [activeAgent.id, evolveModal])
+
+  if (!evolveModal) return null
+
+  const selectedAgent = agents.find((agent) => agent.id === selectedAgentId) ?? activeAgent
+  const nextVersion = bumpMinorVersion(selectedAgent.version)
+  const examples = EVOLUTION_EXAMPLES[selectedAgent.id]
+  const competitionContext = `${selectedAgent.name} evolved from ${selectedAgent.version} to ${nextVersion}. ${examples[0]}`
+
+  const handleEvolve = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/arkiv/improvement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          liberatorName: selectedAgent.id,
+          version: selectedAgent.version,
+          nextVersion,
+          integrityScore: selectedAgent.integrityScore,
+          competitionContext,
+        }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Unable to evolve agent.')
+      }
+
+      prependProofRecord(buildProofRecord({
+        type: 'agentImprovementProof',
+        agent: selectedAgent.name,
+        entity: `${selectedAgent.name} ${selectedAgent.version} -> ${nextVersion}`,
+        txHash: data.proofTxHash ?? data.txHash,
+        entityKey: data.proofEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      await Promise.all([refreshAgents(), refreshProofRecords()])
+      setActiveNav('proofs')
+      setEvolveModal(false)
+      addToast('success', 'Agent Evolved', `${selectedAgent.name} evolved from ${selectedAgent.version} to ${nextVersion}.`)
+    } catch (error) {
+      addToast('error', 'Evolution Failed', error instanceof Error ? error.message : 'Unable to evolve agent.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <Overlay onClose={() => { if (!loading) setEvolveModal(false) }}>
+      <div className="w-full max-w-3xl">
+        <ModalHeader
+          title="Evolve Agent"
+          icon={<Sparkles size={14} className="text-[#f97316]" />}
+          onClose={() => setEvolveModal(false)}
+          disabled={loading}
+          accent="#f97316"
+        />
+        <div className="p-5">
+          <p className="text-[11px] text-[#3d6040] mb-4">
+            Choose which Liberator to evolve. The modal shows the next version target and an example of what improves in that release.
+          </p>
+          <SelectAgentGrid agents={agents} selectedId={selectedAgentId} onSelect={setSelectedAgentId} />
+          <div className="border border-[#162816] rounded-md p-3 bg-[#060b06] mb-5">
+            <Row label="Current version" value={selectedAgent.version} />
+            <Row label="Next version" value={nextVersion} highlight />
+            <div className="mt-3">
+              <div className="text-[9px] text-[#3d6040] mb-1">Example release notes</div>
+              <div className="flex flex-col gap-2">
+                {examples.map((example) => (
+                  <div key={example} className="text-[10px] text-[#d4e8d4]/80 leading-relaxed">
+                    - {example}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setEvolveModal(false)}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-md border border-[#162816] text-[10px] font-bold uppercase tracking-widest text-[#3d6040] hover:text-[#d4e8d4] transition-colors disabled:opacity-40"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEvolve}
+              disabled={loading}
+              className="flex-1 py-2.5 rounded-md border border-[#f97316]/40 text-[10px] font-bold uppercase tracking-widest text-[#f97316] bg-[#f97316]/5 hover:bg-[#f97316]/10 transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {loading ? (
+                <><Loader2 size={12} className="animate-spin" /> Writing...</>
+              ) : (
+                <><Sparkles size={12} /> Confirm Evolution</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Overlay>
+  )
+}
 
 /* ── Backup Soul Modal ─────────────────────────────────────────── */
 export function BackupModal() {
-  const { backupModal, setBackupModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
+  const { agents, backupModal, setBackupModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string; entityExplorerUrl: string } | null>(null)
+  const [selectedAgentId, setSelectedAgentId] = useState<AgentId>(activeAgent.id)
 
   useEffect(() => {
-    if (!backupModal) {
+    if (backupModal) {
+      setSelectedAgentId(activeAgent.id)
+    } else {
       setLoading(false)
       setDone(false)
       setResult(null)
     }
-  }, [backupModal])
+  }, [activeAgent.id, backupModal])
 
   if (!backupModal) return null
+
+  const selectedAgent = agents.find((agent) => agent.id === selectedAgentId) ?? activeAgent
+  const soulSnapshot = buildSoulSnapshot(selectedAgent)
 
   const handleBackup = async () => {
     setLoading(true)
@@ -31,9 +227,10 @@ export function BackupModal() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          liberatorName: activeAgent.id,
-          version: activeAgent.version,
-          integrityScore: activeAgent.integrityScore,
+          liberatorName: selectedAgent.id,
+          version: selectedAgent.version,
+          integrityScore: selectedAgent.integrityScore,
+          content: soulSnapshot,
         }),
       })
       const data = await response.json()
@@ -46,20 +243,20 @@ export function BackupModal() {
       setDone(true)
       prependProofRecord(buildProofRecord({
         type: 'soulBackupProof',
-        agent: activeAgent.name,
-        entity: `${activeAgent.name} soul backup`,
+        agent: selectedAgent.name,
+        entity: `${selectedAgent.name} soul backup`,
         txHash: data.proofTxHash ?? data.txHash,
         entityKey: data.proofEntityKey ?? data.entityKey,
         timestamp: Date.now(),
       }))
-      upsertAgent(activeAgent.id, {
+      upsertAgent(selectedAgent.id, {
         lastBackup: new Date().toUTCString().replace('GMT', 'UTC'),
         block: 'Latest Arkiv write',
       })
       await Promise.all([refreshAgents(), refreshProofRecords()])
       setActiveNav('proofs')
       setBackupModal(false)
-      addToast('success', 'Backup Written', `${activeAgent.name} soulBackup recorded on data.arkiv`)
+      addToast('success', 'Backup Written', `${selectedAgent.name} soulBackup recorded on data.arkiv`)
     } catch (error) {
       addToast('error', 'Backup Failed', error instanceof Error ? error.message : 'Unable to write backup.')
     } finally {
@@ -79,22 +276,24 @@ export function BackupModal() {
         />
         <div className="p-5">
           <p className="text-[11px] text-[#3d6040] leading-relaxed mb-4">
-            Creating a decentralized backup of{' '}
-            <span className="text-[#d4e8d4] font-semibold">{activeAgent.name}</span>&apos;s soul
-            state on Arkiv, linked to{' '}
-            <span className="font-mono text-[#d4e8d4]">{activeAgent.block}</span>.
+            Choose which Soul to back up. This snapshot is what the runtime can revive from later if the live agent state is lost.
           </p>
+          <SelectAgentGrid agents={agents} selectedId={selectedAgentId} onSelect={setSelectedAgentId} />
           <div className="border border-[#162816] rounded-md p-3 bg-[#060b06] mb-5 flex flex-col gap-2">
-            <Row label="Agent"     value={activeAgent.name} />
-            <Row label="Version"   value={activeAgent.version} />
-            <Row label="Arkiv Gate" value={activeAgent.arkivGate} />
-            <Row label="Integrity" value={`${activeAgent.integrityScore}%`} highlight />
+            <Row label="Agent"     value={selectedAgent.name} />
+            <Row label="Version"   value={selectedAgent.version} />
+            <Row label="Arkiv Gate" value={selectedAgent.arkivGate} />
+            <Row label="Integrity" value={`${selectedAgent.integrityScore}%`} highlight />
             {result && (
               <>
                 <Row label="Entity" value={`${result.entityKey.slice(0, 10)}...${result.entityKey.slice(-6)}`} highlight />
                 <Row label="TX" value={`${result.txHash.slice(0, 10)}...${result.txHash.slice(-6)}`} highlight />
               </>
             )}
+          </div>
+          <div className="border border-[#162816] rounded-md p-3 bg-[#060b06] mb-5">
+            <div className="text-[9px] text-[#3d6040] mb-1">Soul snapshot preview</div>
+            <pre className="text-[10px] text-[#d4e8d4]/80 whitespace-pre-wrap break-words font-mono">{soulSnapshot}</pre>
           </div>
           <div className="flex gap-3">
             <button

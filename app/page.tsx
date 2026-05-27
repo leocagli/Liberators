@@ -4,7 +4,7 @@ import { Header } from '@/components/dashboard/header'
 import { GuardianPanel } from '@/components/dashboard/guardian-panel'
 import { MainContent } from '@/components/dashboard/main-content'
 import { ToastContainer } from '@/components/dashboard/toast-container'
-import { BackupModal, ReviveModal, ProofModal, SkillModal } from '@/components/dashboard/modals'
+import { BackupModal, EvolveModal, ReviveModal, ProofModal, SkillModal } from '@/components/dashboard/modals'
 
 export default function DashboardPage() {
   return (
@@ -34,6 +34,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Global overlays */}
+      <EvolveModal />
       <BackupModal />
       <ReviveModal />
       <SkillModal />

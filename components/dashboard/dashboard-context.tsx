@@ -6,6 +6,7 @@ import { buildProofRecord, initialProofRecords, type ProofRecord, type ProofReco
 export type AgentId = 'valvrave' | 'unchained' | 'hermit'
 export type NavId = 'command' | 'proofs' | 'arkiv' | 'agents' | 'integrations' | 'settings'
 export type SkillActionMode = 'create' | 'improve'
+export type AgentActionMode = 'backup' | 'evolve'
 
 export interface Agent {
   id: AgentId
@@ -122,6 +123,7 @@ interface DashboardState {
   proofRecords: ProofRecord[]
   toasts: Toast[]
   backupModal: boolean
+  evolveModal: boolean
   reviveModal: boolean
   proofModal: boolean
   skillModal: boolean
@@ -139,6 +141,7 @@ interface DashboardState {
   addToast: (type: Toast['type'], title: string, message: string) => void
   removeToast: (id: number) => void
   setBackupModal: (v: boolean) => void
+  setEvolveModal: (v: boolean) => void
   setReviveModal: (v: boolean) => void
   setProofModal: (v: boolean) => void
   setSkillModal: (v: boolean) => void
@@ -159,6 +162,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [proofRecords, setProofRecords] = useState<ProofRecord[]>(initialProofRecords)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [backupModal, setBackupModal] = useState(false)
+  const [evolveModal, setEvolveModal] = useState(false)
   const [reviveModal, setReviveModal] = useState(false)
   const [proofModal, setProofModal] = useState(false)
   const [skillModal, setSkillModal] = useState(false)
@@ -251,6 +255,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         proofRecords,
         toasts,
         backupModal,
+        evolveModal,
         reviveModal,
         proofModal,
         skillModal,
@@ -268,6 +273,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         addToast,
         removeToast,
         setBackupModal,
+        setEvolveModal,
         setReviveModal,
         setProofModal,
         setSkillModal,

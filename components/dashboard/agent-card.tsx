@@ -1,16 +1,13 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
 import { Shield, Database, Globe, Clock, Copy, ExternalLink, RefreshCw, Upload, Info } from 'lucide-react'
 import { useDashboard } from './dashboard-context'
-import { buildProofRecord } from './proof-data'
 
 const TOTAL_SEGMENTS = 28
 
 export function AgentCard() {
-  const { activeAgent, setBackupModal, setReviveModal, setSkillModal, setSkillActionMode, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
-  const [actionLoading, setActionLoading] = useState<'primary' | 'secondary' | null>(null)
+  const { activeAgent, setBackupModal, setEvolveModal, setReviveModal, setSkillModal, setSkillActionMode, copyToClipboard, addToast, upsertAgent, setActiveNav } = useDashboard()
   const filledSegments = Math.round((activeAgent.integrityScore / 100) * TOTAL_SEGMENTS)
 
   const scoreColor =
@@ -27,52 +24,9 @@ export function AgentCard() {
       ? 'bg-[#f59e0b]'
       : 'bg-[#ef4444]'
 
-  const runValvraveEvolution = async () => {
-    setActionLoading('primary')
-    try {
-      const response = await fetch('/api/arkiv/improvement', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          liberatorName: activeAgent.id,
-          version: activeAgent.version,
-          integrityScore: activeAgent.integrityScore,
-          competitionContext: `${activeAgent.name} evolved toward a stronger autonomous agent checkpoint.`,
-        }),
-      })
-      const data = await response.json()
-
-      if (!response.ok || !data.ok) {
-        throw new Error(data.error ?? 'Unable to evolve agent.')
-      }
-
-      prependProofRecord(buildProofRecord({
-        type: 'agentImprovementProof',
-        agent: activeAgent.name,
-        entity: `${activeAgent.name} autonomous evolution`,
-        txHash: data.proofTxHash ?? data.txHash,
-        entityKey: data.proofEntityKey ?? data.entityKey,
-        timestamp: Date.now(),
-      }))
-      await Promise.all([refreshAgents(), refreshProofRecords()])
-      setActiveNav('proofs')
-      addToast('success', 'Agent Evolved', `${activeAgent.name} recorded a fresh improvement proof on Arkiv.`)
-    } catch (error) {
-      addToast('error', 'Evolution Failed', error instanceof Error ? error.message : 'Unable to evolve agent.')
-    } finally {
-      setActionLoading(null)
-    }
-  }
-
-  const openBackupFlow = () => {
-    setActionLoading('primary')
-    setBackupModal(true)
-    setActionLoading(null)
-  }
-
   const handlePrimaryAction = () => {
     if (activeAgent.id === 'valvrave') {
-      void runValvraveEvolution()
+      setEvolveModal(true)
       return
     }
 
@@ -82,7 +36,7 @@ export function AgentCard() {
       return
     }
 
-    openBackupFlow()
+    setBackupModal(true)
   }
 
   const handleSecondaryAction = () => {
@@ -276,19 +230,17 @@ export function AgentCard() {
         <div className="flex gap-3">
           <button
             onClick={handlePrimaryAction}
-            disabled={actionLoading !== null}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#00f080]/40 text-[11px] font-bold tracking-[0.12em] uppercase text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 hover:border-[#00f080]/60 hover:shadow-[0_0_12px_rgba(0,240,128,0.12)] active:scale-[0.98] transition-all duration-150"
           >
             <Upload size={13} />
-            {actionLoading === 'primary' ? 'Writing...' : primaryLabel}
+            {primaryLabel}
           </button>
           <button
             onClick={handleSecondaryAction}
-            disabled={actionLoading !== null}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#162816] text-[11px] font-bold tracking-[0.12em] uppercase text-[#d4e8d4]/60 bg-[#060b06] hover:bg-[#0d180d] hover:border-[#1e3c1e] hover:text-[#d4e8d4] active:scale-[0.98] transition-all duration-150"
           >
             <RefreshCw size={13} />
-            {actionLoading === 'secondary' ? 'Writing...' : secondaryLabel}
+            {secondaryLabel}
           </button>
         </div>
         {activeAgent.id !== 'hermit' && (
