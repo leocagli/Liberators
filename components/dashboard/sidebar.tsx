@@ -11,7 +11,7 @@ import {
   Settings,
   Copy,
 } from 'lucide-react'
-import { useDashboard, AGENTS, type AgentId, type NavId } from './dashboard-context'
+import { useDashboard, type AgentId, type NavId } from './dashboard-context'
 
 const navItems: {
   id: NavId
@@ -27,7 +27,7 @@ const navItems: {
 ]
 
 export function Sidebar() {
-  const { activeAgentId, activeNavId, setActiveAgent, setActiveNav, copyToClipboard } = useDashboard()
+  const { agents, activeAgentId, activeNavId, setActiveAgent, setActiveNav, copyToClipboard } = useDashboard()
   const [walletAddress, setWalletAddress] = useState<string | null>(null)
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function Sidebar() {
           Agents
         </p>
         <div className="flex flex-col gap-1">
-          {AGENTS.map((agent) => {
+          {agents.map((agent) => {
             const isActive = agent.id === activeAgentId
             return (
               <button

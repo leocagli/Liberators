@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { initialProofRecords, type ProofRecord } from './proof-data'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
+import { buildProofRecord, initialProofRecords, type ProofRecord, type ProofRecordType } from './proof-data'
 
 export type AgentId = 'valvrave' | 'unchained' | 'hermit'
 export type NavId = 'command' | 'proofs' | 'arkiv' | 'agents' | 'integrations' | 'settings'
@@ -134,6 +134,7 @@ interface DashboardState {
   setActiveNav: (id: NavId) => void
   upsertAgent: (id: AgentId, patch: Partial<Agent>) => void
   prependProofRecord: (record: ProofRecord) => void
+  refreshProofRecords: () => Promise<void>
   addToast: (type: Toast['type'], title: string, message: string) => void
   removeToast: (id: number) => void
   setBackupModal: (v: boolean) => void
@@ -190,6 +191,34 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setProofRecords((prev) => [record, ...prev])
   }, [])
 
+  const refreshProofRecords = useCallback(async () => {
+    try {
+      const response = await fetch('/api/arkiv/proofs', { cache: 'no-store' })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok || !Array.isArray(data.records)) {
+        throw new Error(data.error ?? 'Unable to load proof history.')
+      }
+
+      const records = data.records.map((record: {
+        type: ProofRecordType
+        agent: string
+        entity: string
+        txHash: string
+        entityKey: string
+        timestamp: number
+      }) => buildProofRecord(record))
+
+      setProofRecords(records.length > 0 ? records : initialProofRecords)
+    } catch {
+      setProofRecords(initialProofRecords)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshProofRecords()
+  }, [refreshProofRecords])
+
   const activeAgent = agents.find((a) => a.id === activeAgentId)!
 
   return (
@@ -214,6 +243,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setActiveNav: setActiveNavId,
         upsertAgent,
         prependProofRecord,
+        refreshProofRecords,
         addToast,
         removeToast,
         setBackupModal,

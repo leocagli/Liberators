@@ -1,7 +1,7 @@
 'use client'
 
 import type { ReactNode } from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2, Wrench } from 'lucide-react'
 import { buildProofRecord } from './proof-data'
 import { SKILL_TEMPLATES, useDashboard } from './dashboard-context'
@@ -12,6 +12,14 @@ export function BackupModal() {
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string; entityExplorerUrl: string } | null>(null)
+
+  useEffect(() => {
+    if (!backupModal) {
+      setLoading(false)
+      setDone(false)
+      setResult(null)
+    }
+  }, [backupModal])
 
   if (!backupModal) return null
 
@@ -49,6 +57,7 @@ export function BackupModal() {
         block: 'Latest Arkiv write',
       })
       setActiveNav('proofs')
+      setBackupModal(false)
       addToast('success', 'Backup Written', `${activeAgent.name} soulBackup recorded on data.arkiv`)
     } catch (error) {
       addToast('error', 'Backup Failed', error instanceof Error ? error.message : 'Unable to write backup.')
@@ -120,6 +129,13 @@ export function ReviveModal() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string } | null>(null)
 
+  useEffect(() => {
+    if (!reviveModal) {
+      setLoading(false)
+      setResult(null)
+    }
+  }, [reviveModal])
+
   if (!reviveModal) return null
 
   const handleRevive = async () => {
@@ -150,6 +166,7 @@ export function ReviveModal() {
         soulId: `${data.entityKey.slice(0, 6)}...${data.entityKey.slice(-6)}`,
       })
       setActiveNav('proofs')
+      setReviveModal(false)
       addToast('success', 'Revival Written', `${activeAgent.name} revival checkpoint recorded on Arkiv`)
     } catch (error) {
       addToast('error', 'Revival Failed', error instanceof Error ? error.message : 'Unable to revive from Arkiv.')
@@ -292,6 +309,13 @@ export function SkillModal() {
   } = useDashboard()
   const [selectedSkillId, setSelectedSkillId] = useState(SKILL_TEMPLATES[0]?.id ?? '')
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!skillModal) {
+      setLoading(false)
+      setSelectedSkillId(SKILL_TEMPLATES[0]?.id ?? '')
+    }
+  }, [skillModal])
 
   if (!skillModal) return null
 

@@ -26,6 +26,8 @@ export type ProofRecord = {
   time: string
 }
 
+export type ProofRecordSnapshot = Omit<ProofRecord, 'icon' | 'iconColor' | 'typeColor'>
+
 type RecordVisual = {
   icon: LucideIcon
   iconColor: string
@@ -97,6 +99,30 @@ export function buildProofRecord(input: {
     dataLink: `data.arkiv.network/entity/${compactHash(input.entityKey, 10, 6)}`,
     dataUrl: entityUrl(input.entityKey),
     time: input.timestamp ? `${formatUtcTime(input.timestamp)} UTC` : 'Just now',
+  }
+}
+
+export function snapshotProofRecord(record: ProofRecord): ProofRecordSnapshot {
+  return {
+    type: record.type,
+    agent: record.agent,
+    entity: record.entity,
+    tx: record.tx,
+    txUrl: record.txUrl,
+    dataLink: record.dataLink,
+    dataUrl: record.dataUrl,
+    time: record.time,
+  }
+}
+
+export function hydrateProofRecord(record: ProofRecordSnapshot): ProofRecord {
+  const visual = VISUALS[record.type]
+
+  return {
+    ...record,
+    icon: visual.icon,
+    iconColor: visual.iconColor,
+    typeColor: visual.typeColor,
   }
 }
 
