@@ -8,7 +8,7 @@ import { SKILL_TEMPLATES, useDashboard } from './dashboard-context'
 
 /* ── Backup Soul Modal ─────────────────────────────────────────── */
 export function BackupModal() {
-  const { backupModal, setBackupModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
+  const { backupModal, setBackupModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string; entityExplorerUrl: string } | null>(null)
@@ -56,6 +56,7 @@ export function BackupModal() {
         lastBackup: new Date().toUTCString().replace('GMT', 'UTC'),
         block: 'Latest Arkiv write',
       })
+      await Promise.all([refreshAgents(), refreshProofRecords()])
       setActiveNav('proofs')
       setBackupModal(false)
       addToast('success', 'Backup Written', `${activeAgent.name} soulBackup recorded on data.arkiv`)
@@ -125,7 +126,7 @@ export function BackupModal() {
 
 /* ── Revive From Arkiv Modal ───────────────────────────────────── */
 export function ReviveModal() {
-  const { reviveModal, setReviveModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
+  const { reviveModal, setReviveModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string } | null>(null)
 
@@ -165,6 +166,7 @@ export function ReviveModal() {
       upsertAgent(activeAgent.id, {
         soulId: `${data.entityKey.slice(0, 6)}...${data.entityKey.slice(-6)}`,
       })
+      await Promise.all([refreshAgents(), refreshProofRecords()])
       setActiveNav('proofs')
       setReviveModal(false)
       addToast('success', 'Revival Written', `${activeAgent.name} revival checkpoint recorded on Arkiv`)
@@ -306,6 +308,8 @@ export function SkillModal() {
     addToast,
     prependProofRecord,
     setActiveNav,
+    refreshAgents,
+    refreshProofRecords,
   } = useDashboard()
   const [selectedSkillId, setSelectedSkillId] = useState(SKILL_TEMPLATES[0]?.id ?? '')
   const [loading, setLoading] = useState(false)
@@ -354,6 +358,7 @@ export function SkillModal() {
         entityKey: data.logEntityKey ?? data.entityKey,
         timestamp: Date.now(),
       }))
+      await Promise.all([refreshAgents(), refreshProofRecords()])
       setActiveNav('proofs')
       setSkillModal(false)
       addToast('success', skillActionMode === 'create' ? 'Skill Created' : 'Skill Improved', `${data.skillName} was recorded on Arkiv.`)

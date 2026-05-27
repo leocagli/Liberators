@@ -9,7 +9,7 @@ import { buildProofRecord } from './proof-data'
 const TOTAL_SEGMENTS = 28
 
 export function AgentCard() {
-  const { activeAgent, setBackupModal, setReviveModal, setSkillModal, setSkillActionMode, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
+  const { activeAgent, setBackupModal, setReviveModal, setSkillModal, setSkillActionMode, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav, refreshAgents, refreshProofRecords } = useDashboard()
   const [actionLoading, setActionLoading] = useState<'primary' | 'secondary' | null>(null)
   const filledSegments = Math.round((activeAgent.integrityScore / 100) * TOTAL_SEGMENTS)
 
@@ -54,6 +54,7 @@ export function AgentCard() {
         entityKey: data.proofEntityKey ?? data.entityKey,
         timestamp: Date.now(),
       }))
+      await Promise.all([refreshAgents(), refreshProofRecords()])
       setActiveNav('proofs')
       addToast('success', 'Agent Evolved', `${activeAgent.name} recorded a fresh improvement proof on Arkiv.`)
     } catch (error) {

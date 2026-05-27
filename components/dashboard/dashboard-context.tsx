@@ -134,6 +134,7 @@ interface DashboardState {
   setActiveNav: (id: NavId) => void
   upsertAgent: (id: AgentId, patch: Partial<Agent>) => void
   prependProofRecord: (record: ProofRecord) => void
+  refreshAgents: () => Promise<void>
   refreshProofRecords: () => Promise<void>
   addToast: (type: Toast['type'], title: string, message: string) => void
   removeToast: (id: number) => void
@@ -191,6 +192,21 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setProofRecords((prev) => [record, ...prev])
   }, [])
 
+  const refreshAgents = useCallback(async () => {
+    try {
+      const response = await fetch('/api/arkiv/agents', { cache: 'no-store' })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok || !Array.isArray(data.agents)) {
+        throw new Error(data.error ?? 'Unable to load agent snapshots.')
+      }
+
+      setAgents(data.agents)
+    } catch {
+      setAgents(AGENTS)
+    }
+  }, [])
+
   const refreshProofRecords = useCallback(async () => {
     try {
       const response = await fetch('/api/arkiv/proofs', { cache: 'no-store' })
@@ -214,6 +230,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
       setProofRecords(initialProofRecords)
     }
   }, [])
+
+  useEffect(() => {
+    void refreshAgents()
+  }, [refreshAgents])
 
   useEffect(() => {
     void refreshProofRecords()
@@ -243,6 +263,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         setActiveNav: setActiveNavId,
         upsertAgent,
         prependProofRecord,
+        refreshAgents,
         refreshProofRecords,
         addToast,
         removeToast,
