@@ -3,12 +3,12 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { X, Upload, RefreshCw, Shield, ExternalLink, CheckCircle, Loader2 } from 'lucide-react'
-import { proofRecords } from './proof-data'
+import { buildProofRecord } from './proof-data'
 import { useDashboard } from './dashboard-context'
 
 /* ── Backup Soul Modal ─────────────────────────────────────────── */
 export function BackupModal() {
-  const { backupModal, setBackupModal, activeAgent, addToast } = useDashboard()
+  const { backupModal, setBackupModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [done, setDone] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string; entityExplorerUrl: string } | null>(null)
@@ -36,6 +36,19 @@ export function BackupModal() {
 
       setResult(data)
       setDone(true)
+      prependProofRecord(buildProofRecord({
+        type: 'soulBackupProof',
+        agent: activeAgent.name,
+        entity: `${activeAgent.name} soul backup`,
+        txHash: data.proofTxHash ?? data.txHash,
+        entityKey: data.proofEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      upsertAgent(activeAgent.id, {
+        lastBackup: new Date().toUTCString().replace('GMT', 'UTC'),
+        block: 'Latest Arkiv write',
+      })
+      setActiveNav('proofs')
       addToast('success', 'Backup Written', `${activeAgent.name} soulBackup recorded on data.arkiv`)
     } catch (error) {
       addToast('error', 'Backup Failed', error instanceof Error ? error.message : 'Unable to write backup.')
@@ -103,7 +116,7 @@ export function BackupModal() {
 
 /* ── Revive From Arkiv Modal ───────────────────────────────────── */
 export function ReviveModal() {
-  const { reviveModal, setReviveModal, activeAgent, addToast } = useDashboard()
+  const { reviveModal, setReviveModal, activeAgent, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<{ entityKey: string; txHash: string } | null>(null)
 
@@ -125,6 +138,18 @@ export function ReviveModal() {
       }
 
       setResult(data)
+      prependProofRecord(buildProofRecord({
+        type: 'evolutionProof',
+        agent: activeAgent.name,
+        entity: `${activeAgent.name} revived soul`,
+        txHash: data.logTxHash ?? data.txHash,
+        entityKey: data.logEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      upsertAgent(activeAgent.id, {
+        soulId: `${data.entityKey.slice(0, 6)}...${data.entityKey.slice(-6)}`,
+      })
+      setActiveNav('proofs')
       addToast('success', 'Revival Written', `${activeAgent.name} revival checkpoint recorded on Arkiv`)
     } catch (error) {
       addToast('error', 'Revival Failed', error instanceof Error ? error.message : 'Unable to revive from Arkiv.')
@@ -188,7 +213,7 @@ export function ReviveModal() {
 
 /* ── All Proofs Modal ──────────────────────────────────────────── */
 export function ProofModal() {
-  const { proofModal, setProofModal } = useDashboard()
+  const { proofModal, setProofModal, proofRecords } = useDashboard()
 
   if (!proofModal) return null
 

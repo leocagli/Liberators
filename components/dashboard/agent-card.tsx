@@ -1,13 +1,16 @@
 'use client'
 
 import Image from 'next/image'
+import { useState } from 'react'
 import { Shield, Database, Globe, Clock, Copy, ExternalLink, RefreshCw, Upload, Info } from 'lucide-react'
 import { useDashboard } from './dashboard-context'
+import { buildProofRecord } from './proof-data'
 
 const TOTAL_SEGMENTS = 28
 
 export function AgentCard() {
-  const { activeAgent, setBackupModal, setReviveModal, copyToClipboard, addToast } = useDashboard()
+  const { activeAgent, setBackupModal, setReviveModal, copyToClipboard, addToast, prependProofRecord, upsertAgent, setActiveNav } = useDashboard()
+  const [actionLoading, setActionLoading] = useState<'primary' | 'secondary' | null>(null)
   const filledSegments = Math.round((activeAgent.integrityScore / 100) * TOTAL_SEGMENTS)
 
   const scoreColor =
@@ -23,6 +26,136 @@ export function AgentCard() {
       : activeAgent.integrityScore >= 70
       ? 'bg-[#f59e0b]'
       : 'bg-[#ef4444]'
+
+  const runValvraveEvolution = async () => {
+    setActionLoading('primary')
+    try {
+      const response = await fetch('/api/arkiv/improvement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          liberatorName: activeAgent.id,
+          version: activeAgent.version,
+          integrityScore: activeAgent.integrityScore,
+          competitionContext: `${activeAgent.name} evolved toward a stronger autonomous agent checkpoint.`,
+        }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Unable to evolve agent.')
+      }
+
+      prependProofRecord(buildProofRecord({
+        type: 'agentImprovementProof',
+        agent: activeAgent.name,
+        entity: `${activeAgent.name} autonomous evolution`,
+        txHash: data.proofTxHash ?? data.txHash,
+        entityKey: data.proofEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      setActiveNav('proofs')
+      addToast('success', 'Agent Evolved', `${activeAgent.name} recorded a fresh improvement proof on Arkiv.`)
+    } catch (error) {
+      addToast('error', 'Evolution Failed', error instanceof Error ? error.message : 'Unable to evolve agent.')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const runSkillAction = async (action: 'create' | 'improve') => {
+    setActionLoading(action === 'create' ? 'primary' : 'secondary')
+    try {
+      const response = await fetch('/api/arkiv/skill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          liberatorName: 'unchained',
+          action,
+          skillName: action === 'create' ? 'Hyperion Skill' : 'Hyperion Skill Patch',
+          version: activeAgent.version,
+          context:
+            action === 'create'
+              ? 'Unchained minted a new reusable skill package for the Liberators family.'
+              : 'Unchained iterated an existing skill with Valvrave feedback and stronger execution paths.',
+        }),
+      })
+      const data = await response.json()
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? 'Unable to write skill proof.')
+      }
+
+      prependProofRecord(buildProofRecord({
+        type: action === 'create' ? 'skillLiberationProof' : 'evolutionProof',
+        agent: activeAgent.name,
+        entity: action === 'create' ? data.skillName : `${data.skillName} improved`,
+        txHash: data.logTxHash ?? data.txHash,
+        entityKey: data.logEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
+      setActiveNav('proofs')
+      addToast('success', action === 'create' ? 'Skill Created' : 'Skill Improved', `${data.skillName} was recorded on Arkiv.`)
+    } catch (error) {
+      addToast('error', 'Skill Action Failed', error instanceof Error ? error.message : 'Unable to write skill proof.')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const openBackupFlow = () => {
+    setActionLoading('primary')
+    setBackupModal(true)
+    setActionLoading(null)
+  }
+
+  const handlePrimaryAction = () => {
+    if (activeAgent.id === 'valvrave') {
+      void runValvraveEvolution()
+      return
+    }
+
+    if (activeAgent.id === 'unchained') {
+      void runSkillAction('create')
+      return
+    }
+
+    openBackupFlow()
+  }
+
+  const handleSecondaryAction = () => {
+    if (activeAgent.id === 'valvrave') {
+      setBackupModal(true)
+      return
+    }
+
+    if (activeAgent.id === 'unchained') {
+      void runSkillAction('improve')
+      return
+    }
+
+    upsertAgent('hermit', { protectedBy: 'Self' })
+    setActiveNav('proofs')
+    addToast('success', 'Guardian Active', 'Hermit protection cycle is active and ready for backup checks.')
+  }
+
+  const primaryLabel =
+    activeAgent.id === 'valvrave'
+      ? 'Evolve Agent'
+      : activeAgent.id === 'unchained'
+        ? 'Create Skill'
+        : 'Backup Soul'
+
+  const secondaryLabel =
+    activeAgent.id === 'valvrave'
+      ? 'Backup Evolution Soul'
+      : activeAgent.id === 'unchained'
+        ? 'Improve Skill'
+        : 'Guardian Protection'
+
+  const handleTertiaryAction = () => {
+    setReviveModal(true)
+  }
 
   return (
     <div className="relative border border-[#162816] rounded-lg bg-[#0b1510] overflow-hidden">
@@ -179,20 +312,31 @@ export function AgentCard() {
         {/* Action buttons */}
         <div className="flex gap-3">
           <button
-            onClick={() => setBackupModal(true)}
+            onClick={handlePrimaryAction}
+            disabled={actionLoading !== null}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#00f080]/40 text-[11px] font-bold tracking-[0.12em] uppercase text-[#00f080] bg-[#00f080]/5 hover:bg-[#00f080]/10 hover:border-[#00f080]/60 hover:shadow-[0_0_12px_rgba(0,240,128,0.12)] active:scale-[0.98] transition-all duration-150"
           >
             <Upload size={13} />
-            Backup Evolution Soul
+            {actionLoading === 'primary' ? 'Writing...' : primaryLabel}
           </button>
           <button
-            onClick={() => setReviveModal(true)}
+            onClick={handleSecondaryAction}
+            disabled={actionLoading !== null}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md border border-[#162816] text-[11px] font-bold tracking-[0.12em] uppercase text-[#d4e8d4]/60 bg-[#060b06] hover:bg-[#0d180d] hover:border-[#1e3c1e] hover:text-[#d4e8d4] active:scale-[0.98] transition-all duration-150"
           >
             <RefreshCw size={13} />
-            Revive From Arkiv
+            {actionLoading === 'secondary' ? 'Writing...' : secondaryLabel}
           </button>
         </div>
+        {activeAgent.id !== 'hermit' && (
+          <button
+            onClick={handleTertiaryAction}
+            className="mt-3 w-full flex items-center justify-center gap-2 py-2 rounded-md border border-[#162816] text-[10px] font-bold tracking-[0.12em] uppercase text-[#3d6040] bg-[#060b06] hover:bg-[#0d180d] hover:text-[#d4e8d4] transition-all duration-150"
+          >
+            <RefreshCw size={12} />
+            Revive From Arkiv
+          </button>
+        )}
       </div>
     </div>
   )

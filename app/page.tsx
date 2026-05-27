@@ -1,10 +1,8 @@
 import { DashboardProvider } from '@/components/dashboard/dashboard-context'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Header } from '@/components/dashboard/header'
-import { AgentCard } from '@/components/dashboard/agent-card'
-import { SoulRecoveryFlow } from '@/components/dashboard/soul-recovery-flow'
-import { ProofRecords } from '@/components/dashboard/proof-records'
 import { GuardianPanel } from '@/components/dashboard/guardian-panel'
+import { MainContent } from '@/components/dashboard/main-content'
 import { ToastContainer } from '@/components/dashboard/toast-container'
 import { BackupModal, ReviveModal, ProofModal } from '@/components/dashboard/modals'
 
@@ -25,9 +23,7 @@ export default function DashboardPage() {
             {/* Center scrollable content */}
             <main className="flex-1 overflow-y-auto p-4 min-w-0">
               <div className="flex flex-col gap-4 max-w-full">
-                <AgentCard />
-                <SoulRecoveryFlow />
-                <ProofRecords />
+                <MainContent />
               </div>
             </main>
 

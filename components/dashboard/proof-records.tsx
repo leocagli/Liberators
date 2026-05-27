@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Calendar, ChevronDown, ExternalLink, Filter, Trophy } from 'lucide-react'
-import { proofRecords } from './proof-data'
+import { buildProofRecord } from './proof-data'
 import { useDashboard } from './dashboard-context'
 
 const FILTER_TYPES = [
@@ -16,7 +16,7 @@ const FILTER_TYPES = [
 const TIME_RANGES = ['7D', '30D', '90D', 'ALL'] as const
 
 export function ProofRecords() {
-  const { activeAgent, addToast, setProofModal, timeRange, setTimeRange } = useDashboard()
+  const { activeAgent, addToast, setProofModal, timeRange, setTimeRange, proofRecords, prependProofRecord } = useDashboard()
   const [filterOpen, setFilterOpen] = useState(false)
   const [timeOpen, setTimeOpen] = useState(false)
   const [activeFilter, setActiveFilter] = useState('All')
@@ -57,6 +57,14 @@ export function ProofRecords() {
         throw new Error(data.error ?? 'Improvement proof failed.')
       }
 
+      prependProofRecord(buildProofRecord({
+        type: 'agentImprovementProof',
+        agent: activeAgent.name,
+        entity: `${activeAgent.name} self-evolution checkpoint`,
+        txHash: data.proofTxHash ?? data.txHash,
+        entityKey: data.proofEntityKey ?? data.entityKey,
+        timestamp: Date.now(),
+      }))
       addToast('success', 'Improvement Proof Written', `${activeAgent.name} checkpoint recorded on data.arkiv`)
     } catch (error) {
       addToast('error', 'Proof Failed', error instanceof Error ? error.message : 'Unable to write improvement proof.')

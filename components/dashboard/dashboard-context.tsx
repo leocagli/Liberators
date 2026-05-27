@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { initialProofRecords, type ProofRecord } from './proof-data'
 
 export type AgentId = 'valvrave' | 'unchained' | 'hermit'
 export type NavId = 'command' | 'proofs' | 'arkiv' | 'agents' | 'integrations' | 'settings'
@@ -77,9 +78,11 @@ export interface Toast {
 }
 
 interface DashboardState {
+  agents: Agent[]
   activeAgentId: AgentId
   activeNavId: NavId
   activeAgent: Agent
+  proofRecords: ProofRecord[]
   toasts: Toast[]
   backupModal: boolean
   reviveModal: boolean
@@ -90,6 +93,8 @@ interface DashboardState {
   timeRange: '7D' | '30D' | '90D' | 'ALL'
   setActiveAgent: (id: AgentId) => void
   setActiveNav: (id: NavId) => void
+  upsertAgent: (id: AgentId, patch: Partial<Agent>) => void
+  prependProofRecord: (record: ProofRecord) => void
   addToast: (type: Toast['type'], title: string, message: string) => void
   removeToast: (id: number) => void
   setBackupModal: (v: boolean) => void
@@ -105,8 +110,10 @@ interface DashboardState {
 const DashboardContext = createContext<DashboardState | null>(null)
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
+  const [agents, setAgents] = useState<Agent[]>(AGENTS)
   const [activeAgentId, setActiveAgentId] = useState<AgentId>('valvrave')
   const [activeNavId, setActiveNavId] = useState<NavId>('command')
+  const [proofRecords, setProofRecords] = useState<ProofRecord[]>(initialProofRecords)
   const [toasts, setToasts] = useState<Toast[]>([])
   const [backupModal, setBackupModal] = useState(false)
   const [reviveModal, setReviveModal] = useState(false)
@@ -132,14 +139,24 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     })
   }, [addToast])
 
-  const activeAgent = AGENTS.find((a) => a.id === activeAgentId)!
+  const upsertAgent = useCallback((id: AgentId, patch: Partial<Agent>) => {
+    setAgents((prev) => prev.map((agent) => (agent.id === id ? { ...agent, ...patch } : agent)))
+  }, [])
+
+  const prependProofRecord = useCallback((record: ProofRecord) => {
+    setProofRecords((prev) => [record, ...prev])
+  }, [])
+
+  const activeAgent = agents.find((a) => a.id === activeAgentId)!
 
   return (
     <DashboardContext.Provider
       value={{
+        agents,
         activeAgentId,
         activeNavId,
         activeAgent,
+        proofRecords,
         toasts,
         backupModal,
         reviveModal,
@@ -150,6 +167,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         timeRange,
         setActiveAgent: setActiveAgentId,
         setActiveNav: setActiveNavId,
+        upsertAgent,
+        prependProofRecord,
         addToast,
         removeToast,
         setBackupModal,
