@@ -15,6 +15,7 @@ export interface Agent {
   statusColor: string
   dotColor: string
   avatar: string
+  avatarPosition?: string
   version: string
   integrityScore: number
   protectedBy: string
@@ -31,7 +32,8 @@ export const AGENTS: Agent[] = [
     status: 'ACTIVE',
     statusColor: 'text-[#00e87a]',
     dotColor: 'bg-[#00e87a]',
-    avatar: '/valvrave.jpg',
+    avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/valvrave-9cNHa0JvXfa9tMasvT0rOjYjczin5W.png',
+    avatarPosition: 'object-center',
     version: 'v2.4.1',
     integrityScore: 98.76,
     protectedBy: 'Hermit',
@@ -46,14 +48,15 @@ export const AGENTS: Agent[] = [
     status: 'IDLE',
     statusColor: 'text-[#4e7050]',
     dotColor: 'bg-[#4e7050]',
-    avatar: '/unchained.jpg',
+    avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/unchained-W1Fly6bN2mnYmv9MeSD7qjA0YRUOPU.png',
+    avatarPosition: 'object-[center_60%]',
     version: 'v1.9.0',
     integrityScore: 72.4,
     protectedBy: 'None',
     lastBackup: 'May 20, 2025 09:10:44 UTC',
     block: 'Block 18,721,004',
     soulId: '0xUnch...3bD2aA',
-    arkivGate: 'beta.arkiv.network',
+    arkivGate: 'braga.arkiv.network',
   },
   {
     id: 'hermit',
@@ -61,7 +64,8 @@ export const AGENTS: Agent[] = [
     status: 'GUARDIAN',
     statusColor: 'text-[#4e7050]',
     dotColor: 'bg-[#4e7050]',
-    avatar: '/hermit.jpg',
+    avatar: 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/hermit-htOQd3ZJycvzBpWafarmDDHjXhRCxF.png',
+    avatarPosition: 'object-center',
     version: 'v3.1.7',
     integrityScore: 100,
     protectedBy: 'Self',
