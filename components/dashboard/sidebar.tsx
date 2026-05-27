@@ -48,11 +48,8 @@ export function Sidebar() {
 
       {/* Logo */}
       <div className="flex items-center gap-2.5 px-4 py-[14px] border-b border-[#162816]">
-        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/40 rounded bg-[#00f080]/5">
-          {/* Custom hex icon */}
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00f080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          </svg>
+        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/40 rounded bg-[#00f080]/5 overflow-hidden">
+          <Image src="/liberators-mark.svg" alt="Liberators logo" width={28} height={28} className="w-full h-full" />
         </div>
         <span className="text-[11px] font-bold tracking-[0.2em] text-[#d4e8d4] uppercase">
           Liberators

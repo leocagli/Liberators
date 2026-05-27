@@ -1,0 +1,24 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="128" height="128" rx="24" fill="#020403"/>
+  <g filter="url(#glow)">
+    <path d="M51 31C35 37 24 51 23 68C21 87 34 104 52 109C62 112 73 110 82 104C71 108 58 107 48 101C37 94 31 82 32 70C33 52 47 37 65 34C60 32 55 31 51 31Z" fill="#39FF14"/>
+    <path d="M88 18L86 31L74 50L84 39L94 24L92 38L80 56L95 44L105 35L100 50L86 63L106 55L97 67L80 73L102 76L89 81L75 78L95 92L82 89L72 82L75 92L68 88L62 77L49 73L35 78L37 72L45 65L59 59L67 39L71 34L68 50L80 34L88 18Z" fill="#39FF14"/>
+    <path d="M45 68L55 63L65 65L72 71L73 77L69 81L64 79L63 74L56 71L48 72L41 76L43 71L45 68Z" fill="#020403"/>
+    <path d="M53 67L59 65L57 69L50 71L53 67Z" fill="#7CFF3A"/>
+    <path d="M63 80L58 84L56 89L60 94L59 87L65 85L63 80Z" fill="#39FF14"/>
+    <path d="M72 82L67 87L66 94L71 98L70 91L76 86L72 82Z" fill="#39FF14"/>
+  </g>
+  <path d="M38 98C48 108 62 112 75 107" stroke="#39FF14" stroke-opacity="0.46" stroke-width="4" stroke-linecap="round"/>
+  <defs>
+    <filter id="glow" x="12" y="8" width="105" height="112" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset/>
+      <feGaussianBlur stdDeviation="4"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.31 0 0 0 0 1 0 0 0 0 0.11 0 0 0 0.9 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+</svg>

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import { Bell, Terminal, FileText, ChevronDown, User, ExternalLink, LogOut, Settings, Copy } from 'lucide-react'
 import { AuthWalletControls } from './auth-wallet-controls'
@@ -31,10 +32,8 @@ export function Header() {
 
       {/* Title block */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/30 rounded bg-[#00f080]/5 flex-shrink-0">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00f080" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          </svg>
+        <div className="w-7 h-7 flex items-center justify-center border border-[#00f080]/30 rounded bg-[#00f080]/5 flex-shrink-0 overflow-hidden">
+          <Image src="/liberators-mark.svg" alt="Liberators logo" width={28} height={28} className="w-full h-full" />
         </div>
         <div className="min-w-0">
           <h1 className="text-[11px] font-bold tracking-[0.15em] text-[#d4e8d4] uppercase leading-tight">

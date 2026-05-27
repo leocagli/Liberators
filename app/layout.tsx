@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { Space_Grotesk, Space_Mono } from 'next/font/google'
 import { AuthSessionProvider } from '@/components/auth/session-provider'
 import './globals.css'
@@ -15,8 +15,12 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Liberators — Soul Backup & Revival',
+  title: 'Liberators - Soul Backup & Revival',
   description: 'Soul Recovery Command Center powered by Arkiv Network',
+  icons: {
+    icon: '/liberators-mark.svg',
+    apple: '/liberators-logo.svg',
+  },
 }
 
 export default function RootLayout({
