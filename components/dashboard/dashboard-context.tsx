@@ -56,7 +56,7 @@ export const AGENTS: Agent[] = [
     lastBackup: 'May 20, 2025 09:10:44 UTC',
     block: 'Block 18,721,004',
     soulId: '0xUnch...3bD2aA',
-    arkivGate: 'beta.arkiv.network',
+    arkivGate: 'braga.arkiv.network',
   },
   {
     id: 'hermit',
