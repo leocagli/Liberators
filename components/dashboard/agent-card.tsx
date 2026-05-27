@@ -91,7 +91,7 @@ export function AgentCard() {
                 alt={`${activeAgent.name} avatar`}
                 width={136}
                 height={136}
-                className="w-full h-full object-cover transition-all duration-500"
+                className={`w-full h-full object-contain transition-all duration-500 ${activeAgent.avatarPosition ?? 'object-center'}`}
                 key={activeAgent.id}
               />
               {/* Corner glow */}

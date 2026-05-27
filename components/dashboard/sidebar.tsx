@@ -83,7 +83,7 @@ export function Sidebar() {
                     alt={agent.name}
                     width={32}
                     height={32}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-contain ${agent.avatarPosition ?? 'object-center'}`}
                   />
                 </div>
                 <div className="min-w-0">
