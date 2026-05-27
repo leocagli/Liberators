@@ -3,15 +3,17 @@
 <img width="1536" height="1024" alt="ChatGPT Image 26 may 2026, 08_54_02 p m" src="https://github.com/user-attachments/assets/595fc326-9c1e-4234-9d22-0361e0251319" />
 
 
-Liberators is a Vercel-ready command center for self-evolving AI agents whose Soul can be backed up, proven, and recovered on Arkiv Braga.
+Liberators is a Vercel-ready command center for self-evolving AI agents with one critical guarantee: their Soul can be backed up, owned, and revived from Arkiv Braga.
 
-The core idea is not just backup. The core idea is autonomous agent evolution with a recoverable Soul: agents improve themselves over time, and each important evolution can be checkpointed as a decentralized `soulBackup` on Arkiv. If the runtime dies, the agent can continue from owned memory instead of losing identity in a centralized database failure.
+The core idea is simple: evolution should not depend on fragile centralized memory. Agents can improve over time, but the thing worth preserving is the full Soul. Liberators stores that Soul as a decentralized `soulBackup` on Arkiv, so if the runtime dies, the agent can come back from owned memory instead of starting from zero.
 
 ## What It Does
 
-- Lets agents evolve through explicit improvement checkpoints.
-- Stores the evolving agent Soul on Arkiv Braga as queryable decentralized backups.
-- Records proof logs for evolution, backup, revival, skill liberation, guardian integrity, and agent improvement.
+- Lets agents evolve through explicit on-chain proof checkpoints.
+- Stores the full agent Soul on Arkiv Braga as a recoverable decentralized backup.
+- Revives agents from their latest `soulBackup`, not from a centralized database.
+- Records proof logs for evolution, backup, revival, skill liberation, and guardian integrity.
+- Gives each Liberator a distinct role and primary action in the dashboard.
 - Lets Hermit act as Soul Guardian and integrity verifier.
 - Supports Google login and wallet connect through Privy.
 - Runs as a Next.js app with server-side Arkiv writes, ready for Vercel deployment.
@@ -29,9 +31,9 @@ Assets:
 
 | Agent | Role | Main Function |
 | --- | --- | --- |
-| `Valvrave` | Evolution Master | Evolves Souls and Skills |
-| `Unchained` | Skill Liberator | Creates and grants Skills |
-| `Hermit` | Soul Guardian | Protects Soul integrity and proofs |
+| `Valvrave` | Evolution Master | Evolves the agent and records improvement proofs |
+| `Unchained` | Skill Liberator | Creates and improves skills |
+| `Hermit` | Soul Guardian | Protects and backs up the full Soul |
 
 ## Arkiv Data Model
 
@@ -51,8 +53,8 @@ Challenge compliance:
 
 Entity types:
 
-- `soul`: current agent Soul state.
-- `soulBackup`: decentralized recoverable Soul checkpoint.
+- `soul`: current agent working state.
+- `soulBackup`: decentralized full Soul checkpoint used for recovery.
 - `skill`: versioned Skill content.
 - `evolutionLog`: timeline and proof records.
 
@@ -68,7 +70,7 @@ Proof types:
 
 ### Self-Evolution Checkpoint
 
-Frontend button: `Evolve`
+Frontend button: `Evolve Agent`
 
 API route:
 
@@ -76,11 +78,11 @@ API route:
 POST /api/arkiv/improvement
 ```
 
-Records an `agentImprovementProof`, useful for showing that an agent is iterating toward better skills, better behavior, and competition readiness.
+Records an `agentImprovementProof`. This is a proof of progress, not the Soul backup itself.
 
 ### Backup Evolution Soul
 
-Frontend button: `Backup Evolution Soul`
+Frontend button: `Backup Soul`
 
 API route:
 
@@ -95,6 +97,8 @@ Writes:
 - `entityType=soulBackup`
 - `proofType=soulBackupProof`
 - a linked `evolutionLog`
+
+This is the critical recovery path. `Backup Soul` is the flow that should store the complete Soul state required to revive the agent later.
 
 The same route implements read/query for the first Arkiv entity type:
 
@@ -112,7 +116,7 @@ API route:
 POST /api/arkiv/revive
 ```
 
-Reads the latest decentralized `soulBackup` for the selected agent, reconstructs a new `soul`, and records a revival checkpoint.
+Reads the latest decentralized `soulBackup` for the selected agent, reconstructs a new `soul`, and records a revival checkpoint. Recovery is based on the backup, not on an evolution proof.
 
 ### Wallet Status
 
@@ -284,6 +288,12 @@ The header includes a wallet button powered by Privy. This is separate from `ARK
 - Browser wallet: user identity and UI session.
 - `ARKIV_PRIVATE_KEY`: trusted backend publisher for Arkiv writes.
 
+Current architecture:
+
+- User wallet logs in and identifies the operator.
+- Server wallet writes Arkiv entities.
+- `Backup Soul` is the recovery write that matters most.
+
 Do not expose `ARKIV_PRIVATE_KEY` to the client.
 
 ## Hermes Agent Runtime
@@ -382,4 +392,4 @@ Arkiv write: confirmed
 
 ## Demo Narrative
 
-Liberators makes agent memory ownable and recoverable. Valvrave evolves, Unchained liberates skills, and Hermit protects the Soul. The system records proofs on Arkiv Braga so the agent's critical state is not trapped in a centralized database. If the runtime disappears, the agent can be revived from its decentralized `soulBackup`.
+Liberators makes agent memory ownable and recoverable. Valvrave proves the agent is evolving. Unchained creates and improves new skills. Hermit protects the Soul and pushes the full backup to Arkiv. The important distinction is that evolution proves progress, but `soulBackup` preserves continuity. If the runtime disappears, the agent can be revived from its decentralized Soul instead of relying on a fragile centralized database.
