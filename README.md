@@ -1,6 +1,7 @@
 # Liberators
 
-![Liberators logo](public/liberators-logo.svg)
+<img width="1536" height="1024" alt="ChatGPT Image 26 may 2026, 08_54_02 p m" src="https://github.com/user-attachments/assets/595fc326-9c1e-4234-9d22-0361e0251319" />
+
 
 Liberators is a Vercel-ready command center for self-evolving AI agents whose Soul can be backed up, proven, and recovered on Arkiv Braga.
 
