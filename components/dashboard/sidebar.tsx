@@ -67,7 +67,10 @@ export function Sidebar() {
             return (
               <button
                 key={agent.id}
-                onClick={() => setActiveAgent(agent.id as AgentId)}
+                onClick={() => {
+                  setActiveAgent(agent.id as AgentId)
+                  setActiveNav('command')
+                }}
                 className={`flex items-center gap-2.5 px-2 py-2 rounded-md text-left transition-all duration-150 ${
                   isActive
                     ? 'bg-[#0d1a0d] border border-[#00f080]/20'
