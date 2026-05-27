@@ -40,6 +40,14 @@ Every Arkiv entity includes the project attribute:
 { key: "project", value: "liberators-arkiv-builder-2026" }
 ```
 
+Challenge compliance:
+
+- Unique `PROJECT_ATTRIBUTE`: `project=liberators-arkiv-builder-2026`.
+- Every created entity includes `PROJECT_ATTRIBUTE`.
+- Every Arkiv query filters by `PROJECT_ATTRIBUTE`.
+- Entity types implemented: `soul`, `skill`, `evolutionLog`, `soulBackup`.
+- First full CRUD-style flow: `soulBackup` supports create, read by entity key, and query by agent.
+
 Entity types:
 
 - `soul`: current agent Soul state.
@@ -127,16 +135,21 @@ This project has already written a real `soulBackup` to Arkiv Braga. The fronten
 
 Confirmed write through the dashboard API:
 
+| Proof | Entity | Transaction |
+| --- | --- | --- |
+| `soulBackupProof` | [0x1c1d...d8ce](https://data.arkiv.network/entity/0x1c1d27c0f7afbddd09d039998e6747b7ec1cbdc9a25073e83a816a55ae18d8ce) | [0x6803...1754f3](https://data.arkiv.network/?query=0x68036b32d4b75d69fdbbcd5253bfcb4771c1c3960d8a18d48ed9803ad51754f3) |
+| `evolutionLog` linked proof | [0x0626...1f0a](https://data.arkiv.network/entity/0x0626a642d3c2ee6a20b2d46f08fc1c22dec3de59dbc7847ea3f322716faa1f0a) | [0x2975...e5865](https://data.arkiv.network/?query=0x297515e40305fbae77bbf855f0c6f666e4641eeaa0b518d6e3448566b9ae5865) |
+| Direct CLI `soul` proof | [0xd1c0...6516](https://data.arkiv.network/entity/0xd1c04cec3895e57638d9626d2e45ec0d9084e785776baee45f25cd6a2d4b6516) | [0xb4fb...593](https://data.arkiv.network/?query=0xb4fb3aee55484104403a5e75f10604ad7735479c0d108928f5d43dc5a0568593) |
+
+Raw proof IDs:
+
 ```txt
 soulBackup entity:
 0x1c1d27c0f7afbddd09d039998e6747b7ec1cbdc9a25073e83a816a55ae18d8ce
-
 soulBackup tx:
 0x68036b32d4b75d69fdbbcd5253bfcb4771c1c3960d8a18d48ed9803ad51754f3
-
 proof entity:
 0x0626a642d3c2ee6a20b2d46f08fc1c22dec3de59dbc7847ea3f322716faa1f0a
-
 proof tx:
 0x297515e40305fbae77bbf855f0c6f666e4641eeaa0b518d6e3448566b9ae5865
 ```
@@ -160,13 +173,9 @@ protectedBy=hermit
 
 Direct CLI proof:
 
-```txt
-entity:
-0xd1c04cec3895e57638d9626d2e45ec0d9084e785776baee45f25cd6a2d4b6516
+Entity: [0xd1c04cec3895e57638d9626d2e45ec0d9084e785776baee45f25cd6a2d4b6516](https://data.arkiv.network/entity/0xd1c04cec3895e57638d9626d2e45ec0d9084e785776baee45f25cd6a2d4b6516)
 
-tx:
-0xb4fb3aee55484104403a5e75f10604ad7735479c0d108928f5d43dc5a0568593
-```
+Transaction: [0xb4fb3aee55484104403a5e75f10604ad7735479c0d108928f5d43dc5a0568593](https://data.arkiv.network/?query=0xb4fb3aee55484104403a5e75f10604ad7735479c0d108928f5d43dc5a0568593)
 
 To repeat the write from the dashboard API:
 
